@@ -18,9 +18,12 @@
             background-color: var(--abyss-deep);
             color: #f8fafc;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
             margin: 0;
-            height: 100vh;
+            min-h-screen: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
         }
 
         /* --- BACKGROUND DYNAMIQUE --- */
@@ -110,38 +113,40 @@
 
         .success-toast {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            left: 1.5rem;
+            md:left: auto;
             z-index: 100;
             animation: slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes slide-in { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slide-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
-<body class="flex items-center justify-center">
+<body class="min-h-screen">
 
     <canvas id="bg-canvas"></canvas>
     <div id="nebula-bg" class="nebula theme-abyss"></div>
 
     <!-- Interface Principale -->
-    <div id="app" class="relative z-10 w-full max-w-5xl h-full flex flex-col items-center justify-center gap-8 p-6">
+    <div id="app" class="relative z-10 w-full max-w-5xl min-h-screen flex flex-col items-center justify-between py-8 px-4 md:px-6 gap-6 md:gap-8">
         
-        <header class="text-center space-y-2">
+        <header class="text-center space-y-2 w-full">
             <div class="inline-block px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-[8px] text-yellow-500 font-bold uppercase tracking-[0.3em] mb-2">Premium Edition</div>
-            <h1 class="text-4xl md:text-6xl font-extralight tracking-[0.25em] text-white opacity-95 uppercase">L'Abysse du Vide</h1>
-            <div class="flex items-center justify-center gap-4">
-                <p class="text-indigo-300/40 text-[10px] tracking-widest uppercase mono">Laisse le temps s'écouler dans le néant</p>
-                <a href="#" onclick="alert('Lien vers votre page de soutien ici !'); return false;" class="text-yellow-500/60 hover:text-yellow-500 text-[10px] uppercase tracking-widest border border-yellow-500/20 px-2 py-0.5 rounded transition-all">Soutenir</a>
+            <h1 class="text-3xl md:text-5xl lg:text-6xl font-extralight tracking-[0.2em] md:tracking-[0.25em] text-white opacity-95 uppercase leading-tight">L'Abysse du Vide</h1>
+            <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+                <p class="text-indigo-300/40 text-[9px] md:text-[10px] tracking-widest uppercase mono">Laisse le temps s'écouler dans le néant</p>
+                <button onclick="alert('Lien vers votre page de soutien ici !');" class="text-yellow-500/60 hover:text-yellow-500 text-[9px] uppercase tracking-widest border border-yellow-500/20 px-2 py-0.5 rounded transition-all bg-yellow-500/5">Soutenir</button>
             </div>
         </header>
 
-        <!-- Statistiques Premium de Haut de Page -->
-        <div class="flex gap-6 text-[10px] uppercase tracking-widest mono text-white/40">
+        <!-- Statistiques Premium -->
+        <div class="flex gap-4 md:gap-6 text-[9px] md:text-[10px] uppercase tracking-widest mono text-white/40">
             <div class="flex flex-col items-center">
                 <span>Multiplicateur</span>
                 <span id="mult-display" class="text-yellow-500 font-bold">x1.0</span>
             </div>
-            <div class="w-[1px] h-8 bg-white/10"></div>
+            <div class="w-[1px] h-6 md:h-8 bg-white/10"></div>
             <div class="flex flex-col items-center">
                 <span>Prestige</span>
                 <span id="prestige-display" class="text-yellow-500 font-bold">Rang 0</span>
@@ -149,13 +154,13 @@
         </div>
 
         <!-- Niveau & Progrès -->
-        <div class="w-full max-w-md space-y-4">
+        <div class="w-full max-w-sm md:max-w-md space-y-3">
             <div class="flex justify-between items-end px-1">
                 <div class="flex flex-col">
-                    <span class="text-[9px] uppercase tracking-[0.2em] text-yellow-500/60 font-bold">Niveau</span>
-                    <span id="level-display" class="text-4xl font-bold mono tracking-tighter text-white">1</span>
+                    <span class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-yellow-500/60 font-bold">Niveau</span>
+                    <span id="level-display" class="text-3xl md:text-4xl font-bold mono tracking-tighter text-white">1</span>
                 </div>
-                <div class="text-[11px] uppercase tracking-widest text-white/40 mono pb-1">
+                <div class="text-[10px] md:text-[11px] uppercase tracking-widest text-white/40 mono pb-1">
                     <span id="exp-current" class="text-white/80">0</span> / <span id="exp-next">100</span> XP
                 </div>
             </div>
@@ -164,73 +169,75 @@
             </div>
         </div>
 
-        <!-- Timer Central Premium -->
-        <div class="relative">
-            <div id="timer-container" class="glass-panel premium-border w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center">
-                <span id="main-timer" class="text-4xl md:text-5xl font-extralight mono tracking-tight text-white/90">00:00:00</span>
-                <div class="w-12 h-[1px] bg-yellow-500/30 my-4"></div>
+        <!-- Timer Central Premium (Adaptatif) -->
+        <div class="relative py-4">
+            <div id="timer-container" class="glass-panel premium-border w-52 h-52 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center transition-all duration-500">
+                <span id="main-timer" class="text-3xl sm:text-4xl md:text-5xl font-extralight mono tracking-tight text-white/90">00:00:00</span>
+                <div class="w-8 md:w-12 h-[1px] bg-yellow-500/30 my-3 md:my-4"></div>
                 <div class="flex flex-col items-center gap-1">
-                    <span class="text-[9px] uppercase tracking-[0.3em] text-white/40">Temps Accumulé</span>
-                    <span id="stat-rarity" class="text-[11px] font-bold mono text-yellow-500">Vide</span>
+                    <span class="text-[8px] md:text-[9px] uppercase tracking-[0.3em] text-white/40">Temps Accumulé</span>
+                    <span id="stat-rarity" class="text-[10px] md:text-[11px] font-bold mono text-yellow-500">Vide</span>
                 </div>
             </div>
         </div>
 
-        <!-- Contrôles Premium -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl">
-            <button onclick="openModal('achievements')" class="glass-panel p-4 rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
-                <span class="text-[8px] text-white/40 uppercase tracking-widest mb-1">Succès</span>
-                <p class="text-xs font-bold uppercase">Menu</p>
+        <!-- Contrôles Premium (Grille Responsive) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 w-full max-w-3xl">
+            <button onclick="openModal('achievements')" class="glass-panel p-3 md:p-4 rounded-xl md:rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
+                <span class="text-[7px] md:text-[8px] text-white/40 uppercase tracking-widest mb-1">Succès</span>
+                <p class="text-[10px] md:text-xs font-bold uppercase">Menu</p>
             </button>
-            <button onclick="openModal('eggs')" class="glass-panel p-4 rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
-                <span class="text-[8px] text-white/40 uppercase tracking-widest mb-1">Collection</span>
-                <p id="stat-eggs" class="text-xs font-bold uppercase">0 / 25</p>
+            <button onclick="openModal('eggs')" class="glass-panel p-3 md:p-4 rounded-xl md:rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
+                <span class="text-[7px] md:text-[8px] text-white/40 uppercase tracking-widest mb-1">Collection</span>
+                <p id="stat-eggs" class="text-[10px] md:text-xs font-bold uppercase">0 / 25</p>
             </button>
-            <button onclick="openModal('themes')" class="glass-panel p-4 rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
-                <span class="text-[8px] text-white/40 uppercase tracking-widest mb-1">Visuel</span>
-                <p class="text-xs font-bold uppercase">Thèmes</p>
+            <button onclick="openModal('themes')" class="glass-panel p-3 md:p-4 rounded-xl md:rounded-2xl flex flex-col items-center hover:bg-white/5 transition-all">
+                <span class="text-[7px] md:text-[8px] text-white/40 uppercase tracking-widest mb-1">Visuel</span>
+                <p class="text-[10px] md:text-xs font-bold uppercase">Thèmes</p>
             </button>
-            <button id="prestige-btn" onclick="tryPrestige()" class="glass-panel p-4 rounded-2xl flex flex-col items-center opacity-30 cursor-not-allowed transition-all">
-                <span class="text-[8px] text-yellow-500 uppercase tracking-widest mb-1">Ascension</span>
-                <p class="text-xs font-bold uppercase">Bloqué</p>
+            <button id="prestige-btn" onclick="tryPrestige()" class="glass-panel p-3 md:p-4 rounded-xl md:rounded-2xl flex flex-col items-center opacity-30 cursor-not-allowed transition-all">
+                <span class="text-[7px] md:text-[8px] text-yellow-500 uppercase tracking-widest mb-1">Ascension</span>
+                <p class="text-[10px] md:text-xs font-bold uppercase">Bloqué</p>
             </button>
         </div>
 
         <!-- Audio toggle discrete -->
-        <button onclick="toggleSound()" id="sound-toggle" class="text-[8px] uppercase tracking-widest text-white/20 hover:text-white transition-colors">Audio: On</button>
+        <footer class="w-full text-center pb-2">
+            <button onclick="toggleSound()" id="sound-toggle" class="text-[8px] uppercase tracking-widest text-white/20 hover:text-white transition-colors">Audio: On</button>
+        </footer>
     </div>
 
     <!-- Modales -->
-    <div id="modal-achievements" class="modal-overlay">
-        <div class="glass-panel w-full max-w-xl max-h-[70vh] m-4 rounded-3xl overflow-hidden flex flex-col premium-border">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Archive des Succès</h2>
-                <button onclick="closeModal('achievements')" class="text-2xl text-white/40 hover:text-white">&times;</button>
+    <div id="modal-achievements" class="modal-overlay px-4">
+        <div class="glass-panel w-full max-w-xl max-h-[80vh] rounded-2xl md:rounded-3xl overflow-hidden flex flex-col premium-border">
+            <div class="p-5 md:p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Archive des Succès</h2>
+                <button onclick="closeModal('achievements')" class="text-2xl text-white/40 hover:text-white leading-none">&times;</button>
             </div>
-            <div id="list-achievements" class="p-6 overflow-y-auto custom-scrollbar grid grid-cols-1 gap-3"></div>
+            <div id="list-achievements" class="p-5 md:p-6 overflow-y-auto custom-scrollbar grid grid-cols-1 gap-3"></div>
         </div>
     </div>
 
-    <div id="modal-eggs" class="modal-overlay">
-        <div class="glass-panel w-full max-w-xl max-h-[70vh] m-4 rounded-3xl overflow-hidden flex flex-col premium-border">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Collection d'Anomalies</h2>
-                <button onclick="closeModal('eggs')" class="text-2xl text-white/40 hover:text-white">&times;</button>
+    <div id="modal-eggs" class="modal-overlay px-4">
+        <div class="glass-panel w-full max-w-xl max-h-[80vh] rounded-2xl md:rounded-3xl overflow-hidden flex flex-col premium-border">
+            <div class="p-5 md:p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Collection d'Anomalies</h2>
+                <button onclick="closeModal('eggs')" class="text-2xl text-white/40 hover:text-white leading-none">&times;</button>
             </div>
-            <div id="list-eggs" class="p-6 overflow-y-auto custom-scrollbar grid grid-cols-2 gap-3"></div>
+            <div id="list-eggs" class="p-5 md:p-6 overflow-y-auto custom-scrollbar grid grid-cols-2 gap-3"></div>
         </div>
     </div>
 
-    <div id="modal-themes" class="modal-overlay">
-        <div class="glass-panel w-full max-w-sm m-4 rounded-3xl overflow-hidden flex flex-col premium-border">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Thèmes du Vide</h2>
-                <button onclick="closeModal('themes')" class="text-2xl text-white/40 hover:text-white">&times;</button>
+    <div id="modal-themes" class="modal-overlay px-4">
+        <div class="glass-panel w-full max-w-sm rounded-2xl md:rounded-3xl overflow-hidden flex flex-col premium-border">
+            <div class="p-5 md:p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-yellow-500">Thèmes du Vide</h2>
+                <button onclick="closeModal('themes')" class="text-2xl text-white/40 hover:text-white leading-none">&times;</button>
             </div>
-            <div class="p-6 space-y-3">
-                <button onclick="setTheme('abyss')" class="w-full p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 text-xs text-left uppercase tracking-widest">Abysse Classique</button>
-                <button onclick="setTheme('supernova')" class="w-full p-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/10 text-xs text-left uppercase tracking-widest">Supernova Dorée</button>
-                <button onclick="setTheme('quantum')" class="w-full p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 text-xs text-left uppercase tracking-widest">Vide Quantique</button>
+            <div class="p-5 md:p-6 space-y-3">
+                <button onclick="setTheme('abyss')" class="w-full p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 text-[10px] text-left uppercase tracking-widest">Abysse Classique</button>
+                <button onclick="setTheme('supernova')" class="w-full p-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/10 text-[10px] text-left uppercase tracking-widest">Supernova Dorée</button>
+                <button onclick="setTheme('quantum')" class="w-full p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 text-[10px] text-left uppercase tracking-widest">Vide Quantique</button>
             </div>
         </div>
     </div>
@@ -244,7 +251,12 @@
         let particles = [];
         let particleColor = '165, 180, 252';
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+            createStars(); // Recréer pour adapter à la densité de l'écran
+        }
+        
         class Star {
             constructor() { this.init(); }
             init() {
@@ -263,10 +275,21 @@
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-        function createStars() { particles = []; for (let i = 0; i < 200; i++) particles.push(new Star()); }
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+
+        function createStars() { 
+            particles = []; 
+            const count = window.innerWidth < 768 ? 100 : 200;
+            for (let i = 0; i < count; i++) particles.push(new Star()); 
+        }
+
+        function animate() { 
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            particles.forEach(p => { p.update(); p.draw(); }); 
+            requestAnimationFrame(animate); 
+        }
+
         window.addEventListener('resize', resize);
-        resize(); createStars(); animate();
+        resize(); animate();
 
         // --- GAME STATE PREMIUM ---
         let gameState = {
@@ -349,7 +372,7 @@
             } else {
                 btn.classList.add('opacity-30', 'cursor-not-allowed');
                 btn.classList.remove('prestige-btn');
-                btn.querySelector('p').textContent = "Lvl 25";
+                btn.querySelector('p').textContent = `Lvl ${25}`;
             }
         }
 
@@ -413,11 +436,11 @@
         }
 
         function renderLists() {
-            document.getElementById('list-achievements').innerHTML = `<div class="text-center text-white/40 text-[10px] uppercase py-10">Données du vide en cours...</div>`;
+            document.getElementById('list-achievements').innerHTML = `<div class="text-center text-white/40 text-[10px] uppercase py-10 tracking-widest">Données du vide en cours...</div>`;
             document.getElementById('list-eggs').innerHTML = EASTER_EGGS.map(egg => {
                 const found = gameState.foundEggs.includes(egg.id);
-                return `<div class="glass-panel p-3 rounded-xl border border-white/5 ${found ? 'opacity-100' : 'opacity-20'}">
-                    <div class="text-[10px] font-bold uppercase" style="color:${found ? egg.color : 'white'}">${found ? egg.name : '???'}</div>
+                return `<div class="glass-panel p-3 rounded-xl border border-white/5 ${found ? 'opacity-100' : 'opacity-20'} transition-opacity">
+                    <div class="text-[9px] font-bold uppercase" style="color:${found ? egg.color : 'white'}">${found ? egg.name : '???'}</div>
                     <div class="text-[8px] mono text-white/30">${egg.chance}%</div>
                 </div>`;
             }).join('');
@@ -425,11 +448,15 @@
 
         function queueNotification(title, msg, color) {
             const toast = document.createElement('div');
-            toast.className = "success-toast glass-panel premium-border p-4 rounded-2xl w-64 border-l-4";
+            toast.className = "success-toast glass-panel premium-border p-3 md:p-4 rounded-xl md:rounded-2xl max-w-sm border-l-4";
             toast.style.borderLeftColor = color;
-            toast.innerHTML = `<div class="flex flex-col"><span class="text-[8px] uppercase tracking-widest text-white/40 font-bold">${title}</span><span class="text-xs font-bold text-white">${msg}</span></div>`;
+            toast.innerHTML = `<div class="flex flex-col"><span class="text-[8px] uppercase tracking-widest text-white/40 font-bold">${title}</span><span class="text-[10px] md:text-xs font-bold text-white">${msg}</span></div>`;
             document.getElementById('notifications-container').appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+            setTimeout(() => { 
+                toast.style.opacity = '0'; 
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 500); 
+            }, 3000);
         }
 
         window.openModal = (id) => document.getElementById('modal-' + id).classList.add('active');
