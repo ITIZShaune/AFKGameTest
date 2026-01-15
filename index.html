@@ -45,7 +45,6 @@
             transition: background 2s ease;
         }
 
-        /* THÈMES PREMIMUM */
         .theme-abyss { background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 70%); }
         .theme-supernova { background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 70%); }
         .theme-quantum { background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 70%); }
@@ -130,7 +129,10 @@
         <header class="text-center space-y-2">
             <div class="inline-block px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-[8px] text-yellow-500 font-bold uppercase tracking-[0.3em] mb-2">Premium Edition</div>
             <h1 class="text-4xl md:text-6xl font-extralight tracking-[0.25em] text-white opacity-95 uppercase">L'Abysse du Vide</h1>
-            <p class="text-indigo-300/40 text-[10px] tracking-widest uppercase mono">Laisse le temps s'écouler dans le néant</p>
+            <div class="flex items-center justify-center gap-4">
+                <p class="text-indigo-300/40 text-[10px] tracking-widest uppercase mono">Laisse le temps s'écouler dans le néant</p>
+                <a href="#" onclick="alert('Lien vers votre page de soutien ici !'); return false;" class="text-yellow-500/60 hover:text-yellow-500 text-[10px] uppercase tracking-widest border border-yellow-500/20 px-2 py-0.5 rounded transition-all">Soutenir</a>
+            </div>
         </header>
 
         <!-- Statistiques Premium de Haut de Page -->
@@ -285,11 +287,13 @@
             { id: 10, name: "Déjà-vu", chance: 0.03, color: "#10b981" },
             { id: 21, name: "La Réponse (42)", chance: 0.001, color: "#818cf8" },
             { id: 25, name: "L'Alpha et l'Oméga", chance: 0.0001, color: "#f1f5f9" }
-            // ... (les autres IDs peuvent être ajoutés ou générés dynamiquement)
         ];
 
         // --- FONCTIONS LOGIQUE ---
-        function getMult() { return 1 + (gameState.prestigeRank * 0.5); }
+        function getMult() { 
+            return 1 + (gameState.prestigeRank * 0.5);
+        }
+
         function getExpRequired(level) { return Math.floor(100 * Math.pow(1.15, level - 1)); }
 
         function toggleSound() {
@@ -384,18 +388,32 @@
         }
 
         function save() { localStorage.setItem('abysse_premium_save', JSON.stringify(gameState)); }
+        
         function load() {
-            const saved = localStorage.getItem('abysse_premium_save');
-            if (saved) { 
-                gameState = { ...gameState, ...JSON.parse(saved) }; 
+            const premiumSaved = localStorage.getItem('abysse_premium_save');
+            if (premiumSaved) { 
+                gameState = { ...gameState, ...JSON.parse(premiumSaved) }; 
                 setTheme(gameState.currentTheme);
+            } else {
+                const classicSaved = localStorage.getItem('abysse_save_v2');
+                if (classicSaved) {
+                    try {
+                        const parsed = JSON.parse(classicSaved);
+                        gameState.secondsPassed = parsed.secondsPassed || 0;
+                        gameState.foundEggs = parsed.foundEggs || [];
+                        gameState.level = parsed.level || 1;
+                        gameState.currentExp = parsed.currentExp || 0;
+                        gameState.achievements = parsed.achievements || [];
+                        queueNotification('PREMIUM', 'Sauvegarde classique importée', '#d4af37');
+                        save();
+                    } catch(e) { console.error("Erreur d'importation", e); }
+                }
             }
             updateExpUI(); updateUI(); renderLists();
         }
 
         function renderLists() {
-            // Simplifié pour la démo premium
-            document.getElementById('list-achievements').innerHTML = `<div class="text-center text-white/40 text-[10px] uppercase py-10">Exploration en cours...</div>`;
+            document.getElementById('list-achievements').innerHTML = `<div class="text-center text-white/40 text-[10px] uppercase py-10">Données du vide en cours...</div>`;
             document.getElementById('list-eggs').innerHTML = EASTER_EGGS.map(egg => {
                 const found = gameState.foundEggs.includes(egg.id);
                 return `<div class="glass-panel p-3 rounded-xl border border-white/5 ${found ? 'opacity-100' : 'opacity-20'}">
