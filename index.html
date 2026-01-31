@@ -248,6 +248,34 @@
         <div class="text-[7px] uppercase tracking-widest text-slate-500 bg-black/10 px-2 py-0.5 rounded-full border border-white/5">v1.2.1-X5</div>
     </div>
 
+    <div id="tutorial-modal" class="fixed inset-0 z-[300] modal-enter modal-bg flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+        <div class="relative max-w-lg w-full glass-strong rounded-3xl p-8 md:p-10 modal-content text-center space-y-6">
+            <div class="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/40 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h2 class="text-2xl font-light uppercase tracking-[0.2em] text-white">Bienvenue dans l'Abysse</h2>
+            <div class="space-y-4 text-sm text-slate-400 leading-relaxed">
+                <p><span class="text-indigo-400 font-bold">L'expérience est accélérée (x5)</span> pour faciliter votre ascension.</p>
+                <div class="grid grid-cols-1 gap-3 text-left bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="flex gap-3">
+                        <span class="text-indigo-400">●</span>
+                        <p>L'XP augmente <span class="text-white">automatiquement</span> même hors-ligne.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="text-indigo-400">●</span>
+                        <p>Cliquez sur les <span class="text-white">cercles blancs (Anomalies)</span> pour des bonus massifs d'XP.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="text-indigo-400">●</span>
+                        <p>Dépensez vos <span class="text-white">Points de Talent</span> pour devenir plus puissant.</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeTutorial()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/20">Commencer l'existence</button>
+        </div>
+    </div>
+
     <div id="changelog-modal" class="fixed inset-0 z-[200] modal-enter modal-bg flex items-center justify-center p-4">
         <div onclick="toggleChangelog()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="relative max-w-2xl w-full max-h-[80vh] overflow-y-auto glass-strong rounded-3xl p-6 md:p-10 space-y-6 modal-content custom-scrollbar">
@@ -536,7 +564,8 @@
             soundEnabled: true, level: 1, currentExp: 0, talentPoints: 0,
             talents: { xp: 0, eggs: 0, fortune: 0, autocollect: 0 },
             fragments: 0, prestigeCount: 0, anomaliesCaught: 0,
-            lastSaveTime: Date.now()
+            lastSaveTime: Date.now(),
+            firstTime: true // Pour le tutoriel
         };
 
         let audioCtx = null;
@@ -544,6 +573,12 @@
 
         function init() {
             load();
+            
+            // Gestion du tutoriel au démarrage
+            if (gameState.firstTime) {
+                showTutorial();
+            }
+
             if (gameState.lastSaveTime) {
                 const now = Date.now();
                 const diffSeconds = Math.floor((now - gameState.lastSaveTime) / 1000);
@@ -552,7 +587,7 @@
                     gameState.totalSeconds += diffSeconds;
                     let bonus = 1 + (gameState.talents.xp * 0.2);
                     let prestigeMult = 1 + (gameState.fragments * 0.1);
-                    // Modification x5 de la base (5 * 10 = 50)
+                    // XP x5 Bonus absence
                     let xpGained = diffSeconds * (50 * bonus * prestigeMult); 
                     addExp(xpGained);
                     setTimeout(() => {
@@ -568,6 +603,7 @@
             renderEggs();
             updateAllTalentUI();
             if (gameState.talents.autocollect >= 1) startAutoCollect();
+            
             setInterval(() => {
                 gameState.secondsPassed++;
                 gameState.totalSeconds++;
@@ -576,8 +612,10 @@
                 // MODIFICATION X5 XP PASSIVE
                 let passiveXP = 5 * xpBonus * prestigeMult; 
                 addExp(passiveXP);
+                
                 let fortuneBonus = 1 + (gameState.talents.fortune * 0.2);
                 if (Math.random() < (0.05 * fortuneBonus)) spawnAnomaly();
+                
                 let observeBonus = 1 + (gameState.talents.eggs * 0.2);
                 EASTER_EGGS.forEach(egg => {
                     if (!gameState.foundEggs.includes(egg.id)) {
@@ -593,6 +631,22 @@
                 if (gameState.secondsPassed % 10 === 0) save();
             }, 1000);
         }
+
+        // --- Fonctions du Tutoriel ---
+        function showTutorial() {
+            const modal = document.getElementById('tutorial-modal');
+            modal.classList.add('modal-active');
+            modal.classList.remove('modal-enter');
+        }
+
+        function closeTutorial() {
+            const modal = document.getElementById('tutorial-modal');
+            modal.classList.remove('modal-active');
+            modal.classList.add('modal-enter');
+            gameState.firstTime = false;
+            save();
+        }
+        // -----------------------------
 
         function addExp(amount) {
             gameState.currentExp += amount;
@@ -630,7 +684,7 @@
             if (!document.body.contains(el)) return;
             el.remove();
             gameState.anomaliesCaught++;
-            // MODIFICATION X5 XP ANOMALIE (25 * 5 = 125)
+            // MODIFICATION X5 XP ANOMALIE
             addExp(125);
             queueNotification('Anomalie capturée', '+125 XP', '#22d3ee', '');
             updateUI();
@@ -669,18 +723,21 @@
         function updateAllTalentUI() {
             ['xp', 'eggs', 'fortune'].forEach(t => {
                 const btn = document.getElementById(`t-${t}`);
+                if(!btn) return;
                 const lv = gameState.talents[t];
                 const nextBonus = ((lv + 1) * 20);
                 btn.innerHTML = `Niv. ${lv} → ${nextBonus}%`;
                 btn.disabled = gameState.talentPoints < 1;
             });
             const acBtn = document.getElementById('t-autocollect');
-            if (gameState.talents.autocollect >= 1) {
-                acBtn.innerHTML = '✅ DÉBLOQUÉ';
-                acBtn.disabled = true;
-                acBtn.classList.add('opacity-50');
-            } else {
-                acBtn.disabled = gameState.talentPoints < 50;
+            if (acBtn) {
+                if (gameState.talents.autocollect >= 1) {
+                    acBtn.innerHTML = '✅ DÉBLOQUÉ';
+                    acBtn.disabled = true;
+                    acBtn.classList.add('opacity-50');
+                } else {
+                    acBtn.disabled = gameState.talentPoints < 50;
+                }
             }
         }
 
@@ -935,7 +992,13 @@
         }
 
         function save() { gameState.lastSaveTime = Date.now(); localStorage.setItem('abysse_exp_v3', JSON.stringify(gameState)); }
-        function load() { const saved = localStorage.getItem('abysse_exp_v3'); if (saved) gameState = { ...gameState, ...JSON.parse(saved) }; }
+        function load() { 
+            const saved = localStorage.getItem('abysse_exp_v3'); 
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                gameState = { ...gameState, ...parsed }; 
+            }
+        }
 
         window.addEventListener('resize', initParticles);
         window.onload = init;
