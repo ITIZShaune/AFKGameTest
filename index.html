@@ -297,6 +297,10 @@
                             <span class="text-indigo-500">•</span>
                             <span>Multiplicateur d'expérience globale réglé sur x5.</span>
                         </li>
+                        <li class="text-[11px] text-slate-300 flex gap-2">
+                            <span class="text-indigo-500">•</span>
+                            <span>Sauvegarde automatique renforcée (chaque seconde).</span>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -521,42 +525,15 @@
             { id: 't_10m', name: "L'Attente", desc: "Exister pendant 10 minutes.", req: (s) => s >= 600 },
             { id: 't_1h', name: "Méditation", desc: "Exister pendant 1 heure.", req: (s) => s >= 3600 },
             { id: 't_24h', name: "L'Éternité", desc: "Exister pendant 24 heures cumulées.", req: (s) => s >= 86400 },
-            { id: 't_48h', name: "Hibernation", desc: "Exister pendant 48 heures cumulées.", req: (s) => s >= 172800 },
             { id: 'l_10', name: "Éveil Spirituel", desc: "Atteindre le Niveau 10.", req: (s, e, l) => l >= 10 },
             { id: 'l_50', name: "Transmutation", desc: "Atteindre le Niveau 50.", req: (s, e, l) => l >= 50 },
             { id: 'l_100', name: "Omnipotence", desc: "Atteindre le Niveau 100.", req: (s, e, l) => l >= 100 },
-            { id: 'l_150', name: "Demi-Dieu", desc: "Atteindre le Niveau 150.", req: (s, e, l) => l >= 150 },
-            { id: 'l_200', name: "Transcendance", desc: "Atteindre le Niveau 200.", req: (s, e, l) => l >= 200 },
             { id: 'e_1', name: "Curiosité", desc: "Trouver votre première relique.", req: (s, e) => e.length >= 1 },
-            { id: 'e_10', name: "Archiviste du Néant", desc: "Trouver 10 reliques différentes.", req: (s, e) => e.length >= 10 },
-            { id: 'e_all', name: "Maître des Reliques", desc: "Trouver 25 reliques.", req: (s, e) => e.length >= 25 },
-            { id: 'e_40', name: "Collectionneur Galactique", desc: "Trouver 40 reliques différentes.", req: (s, e) => e.length >= 40 },
-            { id: 'e_50', name: "Musée du Néant", desc: "Trouver les 50 reliques.", req: (s, e) => e.length >= 50 },
             { id: 'ano_1', name: "Œil de Lynx", desc: "Capturer une anomalie temporelle.", req: (s, e, l, r, a) => a >= 1 },
-            { id: 'ano_25', name: "Perturbation", desc: "Capturer 25 anomalies.", req: (s, e, l, r, a) => a >= 25 },
             { id: 'ano_100', name: "Maître du Chaos", desc: "Capturer 100 anomalies.", req: (s, e, l, r, a) => a >= 100 },
-            { id: 'ano_500', name: "Gardien du Temps", desc: "Capturer 500 anomalies.", req: (s, e, l, r, a) => a >= 500 },
             { id: 'tal_1', name: "Apprenti du Vide", desc: "Améliorer votre premier talent.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect) >= 1 },
-            { id: 'tal_max', name: "Perfectionniste", desc: "Monter un talent au niveau 10.", req: (s, e, l, r, a, f, t) => t.xp >= 10 || t.eggs >= 10 || t.fortune >= 10 },
-            { id: 'tal_total_50', name: "Polymath", desc: "Dépenser 50 points de talents au total.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect*50) >= 50 },
             { id: 'res_1', name: "Le Grand Saut", desc: "Effectuer votre première résonance.", req: (s, e, l, r) => r >= 1 },
-            { id: 'res_10', name: "Cycle sans fin", desc: "Effectuer 10 résonances.", req: (s, e, l, r) => r >= 10 },
-            { id: 'res_25', name: "Voyageur Temporel", desc: "Effectuer 25 résonances.", req: (s, e, l, r) => r >= 25 },
-            { id: 'frag_100', name: "Fortune du Vide", desc: "Cumuler 100 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 100 },
-            { id: 'frag_500', name: "Richesse Cosmique", desc: "Cumuler 500 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 500 },
-            { id: 'frag_1000', name: "Architecte", desc: "Cumuler 1000 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 1000 },
-            { id: 'complete_15', name: "L'Abysse vous regarde", desc: "Débloquer 15 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 15 },
-            { id: 'complete_all', name: "Maître de l'Abysse", desc: "Débloquer 20 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 20 },
-            { id: 't_week', name: "Semaine dans le Vide", desc: "Exister pendant 7 jours cumulés.", req: (s) => s >= 604800 },
-            { id: 'l_250', name: "Au-delà du Mortel", desc: "Atteindre le Niveau 250.", req: (s, e, l) => l >= 250 },
-            { id: 'e_60', name: "Légende des Reliques", desc: "Trouver les 60 reliques.", req: (s, e) => e.length >= 60 },
-            { id: 'ano_1000', name: "Seigneur des Anomalies", desc: "Capturer 1000 anomalies.", req: (s, e, l, r, a) => a >= 1000 },
-            { id: 'tal_total_100', name: "Maître Absolu", desc: "Dépenser 100 points de talents.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect*50) >= 100 },
-            { id: 'res_50', name: "Gardien du Cycle", desc: "Effectuer 50 résonances.", req: (s, e, l, r) => r >= 50 },
-            { id: 'frag_2500', name: "Milliardaire du Vide", desc: "Cumuler 2500 Fragments.", req: (s, e, l, r, a, f) => f >= 2500 },
-            { id: 'autocollect', name: "Automatisation Totale", desc: "Débloquer l'Auto-Collecte.", req: (s, e, l, r, a, f, t) => t.autocollect >= 1 },
-            { id: 'complete_30', name: "Légende Vivante", desc: "Débloquer 30 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 30 },
-            { id: 'complete_40', name: "Dieu de l'Abysse", desc: "Débloquer 40 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 40 }
+            { id: 'autocollect', name: "Automatisation Totale", desc: "Débloquer l'Auto-Collecte.", req: (s, e, l, r, a, f, t) => t.autocollect >= 1 }
         ];
 
         let gameState = {
@@ -565,7 +542,7 @@
             talents: { xp: 0, eggs: 0, fortune: 0, autocollect: 0 },
             fragments: 0, prestigeCount: 0, anomaliesCaught: 0,
             lastSaveTime: Date.now(),
-            firstTime: true // Pour le tutoriel
+            firstTime: true
         };
 
         let audioCtx = null;
@@ -574,10 +551,7 @@
         function init() {
             load();
             
-            // Gestion du tutoriel au démarrage
-            if (gameState.firstTime) {
-                showTutorial();
-            }
+            if (gameState.firstTime) showTutorial();
 
             if (gameState.lastSaveTime) {
                 const now = Date.now();
@@ -587,7 +561,6 @@
                     gameState.totalSeconds += diffSeconds;
                     let bonus = 1 + (gameState.talents.xp * 0.2);
                     let prestigeMult = 1 + (gameState.fragments * 0.1);
-                    // XP x5 Bonus absence
                     let xpGained = diffSeconds * (50 * bonus * prestigeMult); 
                     addExp(xpGained);
                     setTimeout(() => {
@@ -604,12 +577,15 @@
             updateAllTalentUI();
             if (gameState.talents.autocollect >= 1) startAutoCollect();
             
+            // BOUCLE PRINCIPALE (1 seconde)
             setInterval(() => {
                 gameState.secondsPassed++;
                 gameState.totalSeconds++;
+                
                 let xpBonus = 1 + (gameState.talents.xp * 0.2);
                 let prestigeMult = 1 + (gameState.fragments * 0.1);
-                // MODIFICATION X5 XP PASSIVE
+                
+                // XP x5 Passive
                 let passiveXP = 5 * xpBonus * prestigeMult; 
                 addExp(passiveXP);
                 
@@ -626,13 +602,15 @@
                         }
                     }
                 });
+
                 checkAchievements();
                 updateUI();
-                if (gameState.secondsPassed % 10 === 0) save();
+                
+                // SAUVEGARDE TOUTE LES SECONDES (Corrigé)
+                save(); 
             }, 1000);
         }
 
-        // --- Fonctions du Tutoriel ---
         function showTutorial() {
             const modal = document.getElementById('tutorial-modal');
             modal.classList.add('modal-active');
@@ -646,7 +624,6 @@
             gameState.firstTime = false;
             save();
         }
-        // -----------------------------
 
         function addExp(amount) {
             gameState.currentExp += amount;
@@ -676,7 +653,6 @@
             anomaly.style.top = `${Math.random() * (window.innerHeight - 70)}px`;
             document.body.appendChild(anomaly);
             anomaly.addEventListener('click', () => collectAnomaly(anomaly));
-            anomaly.addEventListener('touchstart', (e) => { e.preventDefault(); collectAnomaly(anomaly); });
             setTimeout(() => { if (document.body.contains(anomaly)) anomaly.remove(); }, 5000);
         }
 
@@ -684,8 +660,7 @@
             if (!document.body.contains(el)) return;
             el.remove();
             gameState.anomaliesCaught++;
-            // MODIFICATION X5 XP ANOMALIE
-            addExp(125);
+            addExp(125); // Bonus Anomalie (impacté par le gain global rapide)
             queueNotification('Anomalie capturée', '+125 XP', '#22d3ee', '');
             updateUI();
         }
@@ -725,8 +700,7 @@
                 const btn = document.getElementById(`t-${t}`);
                 if(!btn) return;
                 const lv = gameState.talents[t];
-                const nextBonus = ((lv + 1) * 20);
-                btn.innerHTML = `Niv. ${lv} → ${nextBonus}%`;
+                btn.innerHTML = `Niv. ${lv} → ${(lv + 1) * 20}%`;
                 btn.disabled = gameState.talentPoints < 1;
             });
             const acBtn = document.getElementById('t-autocollect');
@@ -756,15 +730,7 @@
         function checkAchievements() {
             ACHIEVEMENTS.forEach(ach => {
                 if (!gameState.achievements.includes(ach.id)) {
-                    const s = gameState.totalSeconds;
-                    const e = gameState.foundEggs;
-                    const l = gameState.level;
-                    const r = gameState.prestigeCount;
-                    const a = gameState.anomaliesCaught;
-                    const f = gameState.fragments;
-                    const t = gameState.talents;
-                    const achCount = gameState.achievements.length;
-                    if (ach.req(s, e, l, r, a, f, t, achCount)) {
+                    if (ach.req(gameState.totalSeconds, gameState.foundEggs, gameState.level, gameState.prestigeCount, gameState.anomaliesCaught, gameState.fragments, gameState.talents)) {
                         gameState.achievements.push(ach.id);
                         queueNotification('SUCCÈS DÉBLOQUÉ', ach.name, '#fbbf24', ach.desc);
                         renderAchievements();
@@ -776,13 +742,10 @@
         function renderAchievements() {
             document.getElementById('tab-achievements').innerHTML = ACHIEVEMENTS.map(ach => {
                 const done = gameState.achievements.includes(ach.id);
-                return `<div class="ach-card glass p-4 md:p-5 rounded-xl flex items-center gap-4 md:gap-5 ${done ? 'unlocked' : 'locked'}">
-                    <div class="ach-icon">${done ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</div>
+                return `<div class="ach-card glass p-4 rounded-xl flex items-center gap-4 ${done ? 'unlocked' : 'locked'}">
+                    <div class="ach-icon">${done ? '✓' : ''}</div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-center mb-1">
-                            <h4 class="ach-title uppercase truncate pr-2">${ach.name}</h4>
-                            ${done ? '<div class="h-1.5 w-1.5 rounded-full bg-indigo-400"></div>' : ''}
-                        </div>
+                        <h4 class="ach-title uppercase truncate">${ach.name}</h4>
                         <p class="ach-desc">${ach.desc}</p>
                     </div>
                 </div>`;
@@ -793,9 +756,8 @@
             document.getElementById('tab-eggs').innerHTML = EASTER_EGGS.map(egg => {
                 const found = gameState.foundEggs.includes(egg.id);
                 return `<div class="egg-card glass p-3 rounded-xl text-center ${found ? 'found' : ''}">
-                    <div class="w-10 h-10 rounded-full mx-auto" style="background:${found ? egg.color : '#1a1a1a'}; box-shadow: 0 0 ${found ? '20px' : '0'} ${egg.color};"></div>
+                    <div class="w-10 h-10 rounded-full mx-auto" style="background:${found ? egg.color : '#1a1a1a'}"></div>
                     <div class="egg-name ${found ? 'text-white' : 'text-slate-600'}">${found ? egg.name : '???'}</div>
-                    ${found ? `<div class="text-[7px] text-slate-400 mt-1">#${egg.id}</div>` : ''}
                 </div>`;
             }).join('');
         }
@@ -829,12 +791,9 @@
             ['achievements', 'talents', 'eggs'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).classList.remove('active', 'text-white');
-                document.getElementById(`nav-${t}`).classList.add('text-slate-400');
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            const btn = document.getElementById(`nav-${tab}`);
-            btn.classList.add('active', 'text-white');
-            btn.classList.remove('text-slate-400');
+            document.getElementById(`nav-${tab}`).classList.add('active', 'text-white');
         }
 
         function toggleSound() {
@@ -845,45 +804,30 @@
         function queueNotification(title, msg, color, extra) {
             const container = document.getElementById('notifications-container');
             const notif = document.createElement('div');
-            notif.className = 'glass p-4 rounded-xl border-l-4 transition-all duration-500 transform translate-y-full opacity-0';
+            notif.className = 'glass p-4 rounded-xl border-l-4 transition-all duration-500';
             notif.style.borderLeftColor = color;
-            notif.innerHTML = `
-                <div class="text-[8px] uppercase tracking-widest text-slate-400">${title}</div>
-                <div class="text-[11px] font-bold text-white mt-1">${msg}</div>
-                ${extra ? `<div class="text-[9px] text-slate-400 mt-0.5">${extra}</div>` : ''}
-            `;
+            notif.innerHTML = `<div class="text-[8px] uppercase text-slate-400">${title}</div><div class="text-[11px] font-bold text-white">${msg}</div>`;
             container.appendChild(notif);
-            setTimeout(() => notif.classList.remove('translate-y-full', 'opacity-0'), 100);
             if (gameState.soundEnabled) playTone();
-            setTimeout(() => {
-                notif.classList.add('translate-y-full', 'opacity-0');
-                setTimeout(() => notif.remove(), 500);
-            }, 4000);
+            setTimeout(() => { notif.style.opacity = '0'; setTimeout(() => notif.remove(), 500); }, 4000);
         }
 
         function playTone() {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } catch(e) {}
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            if (h > 0) return `${h}h ${m}m`;
-            if (m > 0) return `${m}m ${s}s`;
-            return `${s}s`;
+        function formatTime(s) {
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            return h > 0 ? `${h}h ${m}m` : `${m}m ${s%60}s`;
         }
 
         function toggleChangelog() {
@@ -893,115 +837,75 @@
         }
 
         function showExportModal() {
-            const modal = document.getElementById('export-modal');
-            const data = btoa(JSON.stringify(gameState));
-            document.getElementById('export-data').value = data;
-            modal.classList.add('modal-active');
-            modal.classList.remove('modal-enter');
+            document.getElementById('export-data').value = btoa(JSON.stringify(gameState));
+            document.getElementById('export-modal').classList.remove('modal-enter');
+            document.getElementById('export-modal').classList.add('modal-active');
         }
-
-        function closeExportModal() {
-            const modal = document.getElementById('export-modal');
-            modal.classList.remove('modal-active');
-            modal.classList.add('modal-enter');
-        }
+        function closeExportModal() { document.getElementById('export-modal').classList.add('modal-enter'); }
 
         function copyExportData() {
             const textarea = document.getElementById('export-data');
-            textarea.select();
-            document.execCommand('copy');
-            queueNotification('SUCCÈS', 'Code copié !', '#10b981', '');
+            textarea.select(); document.execCommand('copy');
+            queueNotification('SUCCÈS', 'Code copié !', '#10b981');
         }
 
         function showImportModal() {
-            document.getElementById('import-modal').classList.add('modal-active');
             document.getElementById('import-modal').classList.remove('modal-enter');
+            document.getElementById('import-modal').classList.add('modal-active');
         }
-
-        function closeImportModal() {
-            document.getElementById('import-modal').classList.remove('modal-active');
-            document.getElementById('import-modal').classList.add('modal-enter');
-        }
+        function closeImportModal() { document.getElementById('import-modal').classList.add('modal-enter'); }
 
         function importSave() {
-            const data = document.getElementById('import-data').value.trim();
-            if (!data) return;
             try {
-                const decoded = JSON.parse(atob(data));
-                gameState = { ...gameState, ...decoded };
-                save();
-                location.reload();
-            } catch(e) { queueNotification('ERREUR', 'Code invalide', '#ef4444', ''); }
+                const data = document.getElementById('import-data').value;
+                gameState = { ...gameState, ...JSON.parse(atob(data)) };
+                save(); location.reload();
+            } catch(e) { alert('Code invalide'); }
         }
 
         function showAdminModal() {
-            document.getElementById('admin-modal').classList.add('modal-active');
             document.getElementById('admin-modal').classList.remove('modal-enter');
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('admin-password').value = '';
+            document.getElementById('admin-modal').classList.add('modal-active');
         }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('modal-enter'); }
+        function verifyAdminPassword() { if(document.getElementById('admin-password').value === ADMIN_PASSWORD) document.getElementById('admin-panel').classList.remove('hidden'); }
 
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.remove('modal-active');
-            document.getElementById('admin-modal').classList.add('modal-enter');
-        }
-
-        function verifyAdminPassword() {
-            if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
-                document.getElementById('admin-panel').classList.remove('hidden');
-            }
-        }
-
-        function adminAddExp() { addExp(10000); save(); }
-        function adminAddTalentPoints() { gameState.talentPoints += 50; updateExpUI(); updateAllTalentUI(); save(); }
-        function adminUnlockAllAchievements() { ACHIEVEMENTS.forEach(ach => { if (!gameState.achievements.includes(ach.id)) gameState.achievements.push(ach.id); }); renderAchievements(); save(); }
-        function adminUnlockAllEggs() { EASTER_EGGS.forEach(egg => { if (!gameState.foundEggs.includes(egg.id)) gameState.foundEggs.push(egg.id); }); renderEggs(); save(); }
-        function adminMaxLevel() { gameState.level = 200; updateExpUI(); save(); }
-        function adminResetAll() { if (confirm('Tout réinitialiser ?')) { localStorage.removeItem('abysse_exp_v3'); location.reload(); } }
+        function adminAddExp() { addExp(10000); }
+        function adminAddTalentPoints() { gameState.talentPoints += 50; updateAllTalentUI(); updateExpUI(); }
+        function adminUnlockAllAchievements() { ACHIEVEMENTS.forEach(a => gameState.achievements.push(a.id)); renderAchievements(); }
+        function adminUnlockAllEggs() { EASTER_EGGS.forEach(e => gameState.foundEggs.push(e.id)); renderEggs(); }
+        function adminMaxLevel() { gameState.level = 200; updateExpUI(); }
+        function adminResetAll() { if(confirm('Reset?')) { localStorage.clear(); location.reload(); } }
 
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initParticles() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             particles = [];
-            const count = window.innerWidth < 768 ? 40 : 80;
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2 + 0.5,
-                    speedY: Math.random() * 0.5 + 0.2,
-                    opacity: Math.random() * 0.5 + 0.2
-                });
-            }
+            for(let i=0; i<50; i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*2, speedY:Math.random()*0.5+0.1});
         }
         function drawParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = 'white';
             particles.forEach(p => {
-                ctx.globalAlpha = p.opacity;
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                p.y -= p.speedY;
-                if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+                p.y -= p.speedY; if(p.y < -10) p.y = canvas.height + 10;
             });
             requestAnimationFrame(drawParticles);
         }
 
-        function save() { gameState.lastSaveTime = Date.now(); localStorage.setItem('abysse_exp_v3', JSON.stringify(gameState)); }
+        function save() { 
+            gameState.lastSaveTime = Date.now(); 
+            localStorage.setItem('abysse_exp_v3', JSON.stringify(gameState)); 
+        }
         function load() { 
-            const saved = localStorage.getItem('abysse_exp_v3'); 
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                gameState = { ...gameState, ...parsed }; 
-            }
+            const s = localStorage.getItem('abysse_exp_v3'); 
+            if(s) gameState = {...gameState, ...JSON.parse(s)}; 
         }
 
-        window.addEventListener('resize', initParticles);
         window.onload = init;
+        window.onresize = initParticles;
     </script>
 </body>
 </html>
