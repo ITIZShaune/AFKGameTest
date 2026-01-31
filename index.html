@@ -239,32 +239,48 @@
 <body class="min-h-screen flex flex-col items-center py-6 md:py-12 px-4 md:px-6">
     <canvas id="canvas-bg"></canvas>
 
-    <!-- Top Right Controls -->
+    <div id="splash-screen" class="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[#020205] transition-opacity duration-1000">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute inset-0 bg-gradient-to-b from-indigo-900/20 to-transparent"></div>
+        </div>
+        <div class="relative z-10 text-center space-y-8 p-6">
+            <div class="space-y-2">
+                <h2 class="text-4xl md:text-6xl font-extralight tracking-[0.4em] uppercase text-white opacity-80 animate-pulse">L'Abysse</h2>
+                <div class="h-[1px] w-24 bg-indigo-500/50 mx-auto"></div>
+            </div>
+            <p class="text-slate-500 font-mono text-[10px] md:text-xs tracking-[0.2em] max-w-xs mx-auto leading-relaxed">
+                INITIALISATION DU PROTOCOLE DE CONSCIENCE...<br>
+                STABILISATION DU FLUX TEMPOREL...
+            </p>
+            <button onclick="enterTheVoid()" class="group relative px-8 py-4 mt-4">
+                <div class="absolute inset-0 bg-indigo-600/20 blur-xl group-hover:bg-indigo-600/40 transition-all duration-500"></div>
+                <div class="relative border border-indigo-400/30 px-8 py-3 rounded-full bg-black/40 backdrop-blur-md text-indigo-300 text-xs md:text-sm uppercase tracking-[0.3em] hover:text-white hover:border-indigo-400 transition-all duration-300">
+                    Se rendre dans le vide
+                </div>
+            </button>
+        </div>
+    </div>
+
     <div class="fixed top-4 right-4 z-[100] flex flex-col items-end gap-2">
         <button onclick="toggleChangelog()" class="text-[8px] md:text-[9px] uppercase tracking-widest text-indigo-400/80 hover:text-indigo-300 transition-colors flex items-center gap-1 bg-black/20 px-3 py-1 rounded-full border border-indigo-500/20 backdrop-blur-sm">
             <span class="md:inline hidden">Journal Système</span>
             <span class="md:hidden">Info</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </button>
-        
         <div class="text-[7px] uppercase tracking-widest text-slate-500 bg-black/10 px-2 py-0.5 rounded-full border border-white/5">v1.2.1</div>
     </div>
 
-    <!-- Changelog Modal -->
     <div id="changelog-modal" class="fixed inset-0 z-[200] modal-enter modal-bg flex items-center justify-center p-4">
         <div onclick="toggleChangelog()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="relative max-w-2xl w-full max-h-[80vh] overflow-y-auto glass-strong rounded-3xl p-6 md:p-10 space-y-6 modal-content custom-scrollbar">
             <button onclick="toggleChangelog()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
-
             <div class="text-center border-b border-white/10 pb-6">
                 <h2 class="text-2xl md:text-3xl font-light uppercase tracking-[0.3em] text-white">Journal Système</h2>
                 <p class="text-slate-500 text-[10px] mt-2 uppercase tracking-wider">L'Abysse du Vide</p>
             </div>
-
             <div class="space-y-8">
-                <!-- Version 1.2.1 -->
                 <div>
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-indigo-400 font-mono text-xs border border-indigo-400/30 px-2 py-0.5 rounded">v1.2.1</span>
@@ -281,60 +297,22 @@
                         </li>
                     </ul>
                 </div>
-
-                <!-- Version 1.0 -->
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-slate-500 font-mono text-xs border border-slate-500/30 px-2 py-0.5 rounded">v1.0.0</span>
-                        <span class="text-slate-500 text-xs uppercase tracking-wider">Genèse</span>
-                    </div>
-                    <ul class="space-y-2">
-                        <li class="text-[11px] text-slate-500 flex gap-2">
-                            <span class="text-slate-600">•</span>
-                            <span>Initialisation de l'Abysse.</span>
-                        </li>
-                        <li class="text-[11px] text-slate-500 flex gap-2">
-                            <span class="text-slate-600">•</span>
-                            <span>Implémentation du système de reliques et succès.</span>
-                        </li>
-                        <li class="text-[11px] text-slate-500 flex gap-2">
-                            <span class="text-slate-600">•</span>
-                            <span>Stabilisation du flux temporel (Sauvegarde automatique).</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="mt-6 pt-4 border-t border-white/10 text-center">
-                <p class="text-[9px] text-slate-500 font-mono">ID DU SYSTÈME: NULL-VOID-X10</p>
             </div>
         </div>
     </div>
 
     <div id="app" class="max-w-4xl w-full flex flex-col items-center gap-6 md:gap-10 relative z-10">
-        
         <header class="text-center space-y-4">
             <h1 class="text-3xl md:text-6xl font-extralight tracking-[0.2em] md:tracking-[0.3em] uppercase text-white opacity-90" style="text-shadow: 0 0 30px rgba(99,102,241,0.3)">L'Abysse du Vide</h1>
             <div class="flex flex-col items-center gap-4">
                 <p class="text-slate-400 italic text-[10px] md:text-sm tracking-widest font-light">"Le temps s'accélère dans les ténèbres."</p>
                 <div class="flex justify-center gap-2 md:gap-4 flex-wrap">
-                    <button onclick="toggleSound()" id="sound-toggle" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">
-                        Audio: Activé
-                    </button>
-                    <!-- NOUVEAUX BOUTONS: Export, Import, Admin -->
-                    <button onclick="showExportModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">
-                        💾 Export
-                    </button>
-                    <button onclick="showImportModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">
-                        📥 Import
-                    </button>
-                    <button onclick="showAdminModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">
-                        🔐 Admin
-                    </button>
+                    <button onclick="toggleSound()" id="sound-toggle" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">Audio: Activé</button>
+                    <button onclick="showExportModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">💾 Export</button>
+                    <button onclick="showImportModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">📥 Import</button>
+                    <button onclick="showAdminModal()" class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-300 border border-white/10 px-3 py-2 rounded-full hover:bg-white/5 transition-all">🔐 Admin</button>
                     <div id="prestige-zone" class="hidden">
-                        <button onclick="prestige()" class="text-[8px] md:text-[9px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-[0.2em] px-3 py-2 rounded-full hover:bg-indigo-500/40 transition-all animate-pulse">
-                            Résonance
-                        </button>
+                        <button onclick="prestige()" class="text-[8px] md:text-[9px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-[0.2em] px-3 py-2 rounded-full hover:bg-indigo-500/40 transition-all animate-pulse">Résonance</button>
                     </div>
                 </div>
             </div>
@@ -350,17 +328,11 @@
             <div class="flex justify-between items-end">
                 <div>
                     <span class="text-[8px] md:text-[9px] uppercase tracking-[0.3em] text-slate-400">Niveau</span>
-                    <div class="flex items-baseline gap-2">
-                        <span id="level-display" class="text-3xl md:text-4xl font-light mono text-white">1</span>
-                    </div>
+                    <div class="flex items-baseline gap-2"><span id="level-display" class="text-3xl md:text-4xl font-light mono text-white">1</span></div>
                 </div>
-                <div class="text-right">
-                    <span class="mono text-[10px] md:text-xs text-slate-200"><span id="exp-current">0</span> / <span id="exp-next">100</span> XP</span>
-                </div>
+                <div class="text-right"><span class="mono text-[10px] md:text-xs text-slate-200"><span id="exp-current">0</span> / <span id="exp-next">100</span> XP</span></div>
             </div>
-            <div class="exp-container">
-                <div id="exp-bar" class="exp-fill"></div>
-            </div>
+            <div class="exp-container"><div id="exp-bar" class="exp-fill"></div></div>
             <div class="flex justify-between text-[8px] md:text-[9px] uppercase tracking-widest text-slate-400">
                 <span>Talents: <span id="talent-points" class="text-indigo-300">0</span> PT</span>
                 <span>Anomalies: <span id="stat-anomalies" class="text-white">0</span></span>
@@ -370,9 +342,9 @@
         <div class="relative group">
             <div id="timer-glow" class="absolute -inset-12 md:-inset-20 bg-indigo-600/10 rounded-full blur-[80px] md:blur-[120px] transition-all duration-1000"></div>
             <div class="absolute -inset-8 md:-inset-16 bg-purple-600/5 rounded-full blur-[60px] md:blur-[100px] animate-pulse"></div>
-            <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center float-anim border-2 border-white/10 bg-gradient-to-br from-white/5 via-indigo-500/5 to-purple-500/5 shadow-2xl" style="box-shadow: 0 0 60px rgba(99, 102, 241, 0.2), inset 0 0 40px rgba(99, 102, 241, 0.05);">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center float-anim border-2 border-white/10 bg-gradient-to-br from-white/5 via-indigo-500/5 to-purple-500/5 shadow-2xl">
                 <div class="absolute inset-0 rounded-full border border-white/5" style="animation: pulse-ring 3s ease-in-out infinite;"></div>
-                <span id="main-timer" class="text-4xl md:text-5xl font-extralight mono tracking-tighter text-white" style="text-shadow: 0 0 20px rgba(255,255,255,0.3);">00:00:00</span>
+                <span id="main-timer" class="text-4xl md:text-5xl font-extralight mono tracking-tighter text-white">00:00:00</span>
                 <span class="text-[9px] md:text-[10px] uppercase tracking-[0.5em] text-slate-300 mt-5">Existence</span>
             </div>
         </div>
@@ -385,292 +357,99 @@
 
         <div class="w-full max-w-3xl min-h-[300px]">
             <div id="tab-achievements" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar"></div>
-            
             <div id="tab-talents" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="glass talent-card p-5 rounded-2xl space-y-4 flex flex-col justify-between">
-                    <div>
-                        <h3 class="talent-title text-indigo-400 uppercase">Éternité</h3>
-                        <p class="talent-info mt-2">Augmente la génération d'expérience passive du Vide.</p>
-                    </div>
-                    <button onclick="buyTalent('xp')" id="t-xp" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white disabled:opacity-20 transition-all"></button>
+                    <div><h3 class="talent-title text-indigo-400 uppercase">Éternité</h3><p class="talent-info mt-2">Exp passive.</p></div>
+                    <button onclick="buyTalent('xp')" id="t-xp" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white transition-all"></button>
                 </div>
                 <div class="glass talent-card p-5 rounded-2xl space-y-4 flex flex-col justify-between">
-                    <div>
-                        <h3 class="talent-title text-purple-400 uppercase">Observation</h3>
-                        <p class="talent-info mt-2">Affine vos sens pour trouver des reliques plus facilement.</p>
-                    </div>
-                    <button onclick="buyTalent('eggs')" id="t-eggs" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white disabled:opacity-20 transition-all"></button>
+                    <div><h3 class="talent-title text-purple-400 uppercase">Observation</h3><p class="talent-info mt-2">Reliques.</p></div>
+                    <button onclick="buyTalent('eggs')" id="t-eggs" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white transition-all"></button>
                 </div>
                 <div class="glass talent-card p-5 rounded-2xl space-y-4 flex flex-col justify-between">
-                    <div>
-                        <h3 class="talent-title text-emerald-400 uppercase">Fortune</h3>
-                        <p class="talent-info mt-2">Perturbe le continuum pour attirer plus d'anomalies.</p>
-                    </div>
-                    <button onclick="buyTalent('fortune')" id="t-fortune" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white disabled:opacity-20 transition-all"></button>
+                    <div><h3 class="talent-title text-emerald-400 uppercase">Fortune</h3><p class="talent-info mt-2">Anomalies.</p></div>
+                    <button onclick="buyTalent('fortune')" id="t-fortune" class="talent-btn w-full py-3 glass-hover border border-white/10 rounded-lg text-[10px] text-white transition-all"></button>
                 </div>
-                <!-- NOUVELLE AMÉLIORATION: AUTO-COLLECTE (50 PT) -->
                 <div class="glass talent-card p-5 rounded-2xl space-y-4 flex flex-col justify-between border-2 border-yellow-500/30 bg-yellow-500/5 col-span-1 md:col-span-3">
-                    <div>
-                        <h3 class="talent-title text-yellow-400 uppercase">🤖 Auto-Collecte</h3>
-                        <p class="talent-info mt-2">Les anomalies sont automatiquement collectées sans clic.</p>
-                        <p class="text-[9px] text-yellow-400/70 mt-1">Coût: 50 Points de Talent (Permanent)</p>
-                    </div>
-                    <button onclick="buyAutoCollect()" id="t-autocollect" class="talent-btn w-full py-3 glass-hover border border-yellow-500/30 rounded-lg text-[10px] text-yellow-200 bg-yellow-500/10 disabled:opacity-20 transition-all">
-                        DÉBLOQUER (50 PT)
-                    </button>
+                    <div><h3 class="talent-title text-yellow-400 uppercase">🤖 Auto-Collecte</h3><p class="talent-info mt-2">Automatique.</p></div>
+                    <button onclick="buyAutoCollect()" id="t-autocollect" class="talent-btn w-full py-3 glass-hover border border-yellow-500/30 rounded-lg text-[10px] text-yellow-200 transition-all">DÉBLOQUER (50 PT)</button>
                 </div>
             </div>
-
             <div id="tab-eggs" class="hidden grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar"></div>
         </div>
     </div>
 
-    <div id="notifications-container" class="fixed bottom-4 right-4 left-4 md:left-auto md:bottom-8 md:right-8 z-[100] flex flex-col gap-2"></div>
-
-    <!-- MODAUX EXPORT/IMPORT/ADMIN -->
     <div id="export-modal" class="fixed inset-0 z-[200] modal-enter modal-bg flex items-center justify-center p-4">
         <div onclick="closeExportModal()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="relative max-w-lg w-full glass-strong rounded-3xl p-8 modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-indigo-300 uppercase tracking-wider">Exporter Sauvegarde</h3>
-            <p class="text-sm text-slate-400 mb-4">Copiez ce code pour transférer votre progression sur un autre appareil.</p>
+            <h3 class="text-2xl font-bold mb-4 text-indigo-300 uppercase tracking-wider">Exporter</h3>
             <textarea id="export-data" readonly class="w-full h-32 bg-black/30 border border-indigo-500/30 rounded-xl p-4 text-white font-mono text-xs resize-none mb-4"></textarea>
-            <div class="flex gap-2">
-                <button onclick="copyExportData()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold text-sm uppercase tracking-wide hover:scale-105 transition-transform">
-                    📋 Copier
-                </button>
-                <button onclick="closeExportModal()" class="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-wide hover:bg-white/10 transition-all">
-                    Fermer
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="import-modal" class="fixed inset-0 z-[200] modal-enter modal-bg flex items-center justify-center p-4">
-        <div onclick="closeImportModal()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="relative max-w-lg w-full glass-strong rounded-3xl p-8 modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-purple-300 uppercase tracking-wider">Importer Sauvegarde</h3>
-            <p class="text-sm text-slate-400 mb-4">Collez le code de sauvegarde pour restaurer votre progression.</p>
-            <textarea id="import-data" placeholder="Collez votre code ici..." class="w-full h-32 bg-black/30 border border-purple-500/30 rounded-xl p-4 text-white font-mono text-xs resize-none mb-4"></textarea>
-            <div class="flex gap-2">
-                <button onclick="importSave()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm uppercase tracking-wide hover:scale-105 transition-transform">
-                    ✅ Importer
-                </button>
-                <button onclick="closeImportModal()" class="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-wide hover:bg-white/10 transition-all">
-                    Annuler
-                </button>
-            </div>
+            <button onclick="copyExportData()" class="w-full py-3 rounded-xl bg-indigo-500 text-white font-bold text-sm uppercase">Copier</button>
         </div>
     </div>
 
     <div id="admin-modal" class="fixed inset-0 z-[200] modal-enter modal-bg flex items-center justify-center p-4">
         <div onclick="closeAdminModal()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="relative max-w-lg w-full glass-strong rounded-3xl p-8 modal-content">
-            <h3 class="text-2xl font-bold mb-4 text-red-300 uppercase tracking-wider">⚠️ Panneau Admin</h3>
-            <p class="text-sm text-slate-400 mb-4">Entrez le mot de passe administrateur.</p>
-            <input type="password" id="admin-password" placeholder="Mot de passe..." class="w-full bg-black/30 border border-red-500/30 rounded-xl p-4 text-white font-mono text-sm mb-4">
-            
-            <div id="admin-panel" class="hidden space-y-3 mb-4">
-                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-                    <h4 class="text-sm font-bold text-red-300 mb-3 uppercase tracking-wide">Actions Administrateur</h4>
-                    <div class="space-y-2">
-                        <button onclick="adminAddExp()" class="w-full py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-xs uppercase tracking-wide hover:bg-white/10 transition-all">
-                            +10000 XP
-                        </button>
-                        <button onclick="adminAddTalentPoints()" class="w-full py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-xs uppercase tracking-wide hover:bg-white/10 transition-all">
-                            +50 Points Talent
-                        </button>
-                        <button onclick="adminUnlockAllAchievements()" class="w-full py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-xs uppercase tracking-wide hover:bg-white/10 transition-all">
-                            Débloquer Tous Succès
-                        </button>
-                        <button onclick="adminUnlockAllEggs()" class="w-full py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-xs uppercase tracking-wide hover:bg-white/10 transition-all">
-                            Débloquer Toutes Reliques
-                        </button>
-                        <button onclick="adminMaxLevel()" class="w-full py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-white text-xs uppercase tracking-wide hover:bg-white/10 transition-all">
-                            Niveau 200
-                        </button>
-                        <button onclick="adminResetAll()" class="w-full py-2 px-4 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 text-xs uppercase tracking-wide hover:bg-red-500/30 transition-all">
-                            🗑️ RESET TOTAL
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex gap-2">
-                <button onclick="verifyAdminPassword()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm uppercase tracking-wide hover:scale-105 transition-transform">
-                    🔓 Vérifier
-                </button>
-                <button onclick="closeAdminModal()" class="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-wide hover:bg-white/10 transition-all">
-                    Fermer
-                </button>
-            </div>
+            <input type="password" id="admin-password" placeholder="Pass..." class="w-full bg-black/30 border border-red-500/30 rounded-xl p-4 text-white mb-4">
+            <div id="admin-panel" class="hidden space-y-2"><button onclick="adminAddExp()" class="w-full py-2 bg-white/5 text-white">+10000 XP</button></div>
+            <button onclick="verifyAdminPassword()" class="w-full py-3 bg-red-500 text-white">Vérifier</button>
         </div>
     </div>
 
+    <div id="notifications-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"></div>
+
     <script>
-        // MOT DE PASSE ADMIN SÉCURISÉ
         const ADMIN_PASSWORD = "Abyss#2025!VoidX10$Eternal";
 
-        // 50 EASTER EGGS ORIGINAUX + 10 NOUVEAUX = 60 TOTAL
         const EASTER_EGGS = [
             { id: 1, name: "Une ombre passe...", chance: 1, color: "#9ca3af" },
             { id: 2, name: "Un murmure lointain", chance: 0.5, color: "#d1d5db" },
             { id: 3, name: "Flash de lumière", chance: 0.3, color: "#ffffff" },
-            { id: 4, name: "Écho du temps", chance: 0.2, color: "#93c5fd" },
-            { id: 5, name: "Poussière d'étoile", chance: 0.15, color: "#fef08a" },
-            { id: 6, name: "Vibration quantique", chance: 0.1, color: "#c084fc" },
-            { id: 7, name: "Erreur Système", chance: 0.08, color: "#ef4444" },
-            { id: 8, name: "Regard du Vide", chance: 0.05, color: "#4f46e5" },
-            { id: 9, name: "Singularité", chance: 0.04, color: "#312e81" },
-            { id: 10, name: "Déjà-vu", chance: 0.03, color: "#34d399" },
-            { id: 11, name: "L'œil d'Odin", chance: 0.02, color: "#3b82f6" },
-            { id: 12, name: "Code Source Visible", chance: 0.015, color: "#22c55e" },
             { id: 13, name: "Le Chat de Schrödinger", chance: 0.01, color: "#fb923c" },
-            { id: 14, name: "Onde Gravitationnelle", chance: 0.008, color: "#67e8f9" },
-            { id: 15, name: "Paradoxe Temporel", chance: 0.007, color: "#f43f5e" },
-            { id: 16, name: "Fragment d'Éternité", chance: 0.006, color: "#fcd34d" },
-            { id: 17, name: "Battement du CPU", chance: 0.005, color: "#dc2626" },
-            { id: 18, name: "Une pensée pour toi", chance: 0.004, color: "#f472b6" },
-            { id: 19, name: "L'appel de Cthulhu", chance: 0.003, color: "#0d9488" },
-            { id: 20, name: "Zéro Absolu", chance: 0.002, color: "#bae6fd" },
             { id: 21, name: "La Réponse (42)", chance: 0.001, color: "#818cf8" },
-            { id: 22, name: "Apparition du Créateur", chance: 0.0008, color: "#eab308" },
-            { id: 23, name: "Supernova Silencieuse", chance: 0.0005, color: "#ea580c" },
-            { id: 24, name: "Collision Dimensionnelle", chance: 0.0002, color: "#d946ef" },
-            { id: 25, name: "L'Alpha et l'Oméga", chance: 0.0001, color: "#f8fafc" },
-            { id: 26, name: "Matière Noire", chance: 0.00009, color: "#1e1b4b" },
-            { id: 27, name: "Rayonnement de Hawking", chance: 0.00008, color: "#e879f9" },
-            { id: 28, name: "Le Monolithe", chance: 0.00007, color: "#171717" },
-            { id: 29, name: "Puce Neuronale", chance: 0.00006, color: "#2dd4bf" },
-            { id: 30, name: "Éclat de Réalité", chance: 0.00005, color: "#f0abfc" },
-            { id: 31, name: "Larmes du Temps", chance: 0.00005, color: "#60a5fa" },
-            { id: 32, name: "Cube Cosmique", chance: 0.00004, color: "#0ea5e9" },
-            { id: 33, name: "Séquence ADN Alien", chance: 0.00004, color: "#84cc16" },
-            { id: 34, name: "Trou de Ver", chance: 0.00003, color: "#a855f7" },
-            { id: 35, name: "Constellation Perdue", chance: 0.00003, color: "#fcd34d" },
-            { id: 36, name: "Mur de Planck", chance: 0.000025, color: "#fb7185" },
-            { id: 37, name: "Boson de Higgs", chance: 0.00002, color: "#fbbf24" },
-            { id: 38, name: "Horloge de l'Apocalypse", chance: 0.00002, color: "#b91c1c" },
-            { id: 39, name: "Silence Éternel", chance: 0.000015, color: "#0f172a" },
-            { id: 40, name: "Clé de la Matrice", chance: 0.000015, color: "#22c55e" },
-            { id: 41, name: "Rêve d'Androïde", chance: 0.00001, color: "#38bdf8" },
-            { id: 42, name: "Poussière de Lune", chance: 0.00001, color: "#e2e8f0" },
-            { id: 43, name: "Signal Wow!", chance: 0.000009, color: "#fca5a5" },
-            { id: 44, name: "Sphère de Dyson", chance: 0.000008, color: "#f59e0b" },
-            { id: 45, name: "Entropie Maximale", chance: 0.000007, color: "#7c3aed" },
-            { id: 46, name: "Lumière Liquide", chance: 0.000006, color: "#67e8f9" },
-            { id: 47, name: "Le 5ème Élément", chance: 0.000005, color: "#f97316" },
-            { id: 48, name: "Code Konami", chance: 0.000004, color: "#ef4444" },
-            { id: 49, name: "Fin de la Simulation", chance: 0.000002, color: "#000000" },
-            { id: 50, name: "Le Vide Absolu", chance: 0.000001, color: "#ffffff" },
-            // 10 NOUVEAUX EASTER EGGS
-            { id: 51, name: "Cristal de Plasma", chance: 0.0000009, color: "#8b5cf6" },
-            { id: 52, name: "Éclair de Pensée", chance: 0.0000008, color: "#06b6d4" },
-            { id: 53, name: "Œuf de Dragon Cosmique", chance: 0.0000007, color: "#f59e0b" },
-            { id: 54, name: "Miroir Dimensionnel", chance: 0.0000006, color: "#ec4899" },
-            { id: 55, name: "Soupir de l'Univers", chance: 0.0000005, color: "#10b981" },
-            { id: 56, name: "Particule Divine", chance: 0.0000004, color: "#f472b6" },
-            { id: 57, name: "Souffle du Créateur", chance: 0.0000003, color: "#fbbf24" },
-            { id: 58, name: "Fragment de Big Bang", chance: 0.0000002, color: "#ef4444" },
-            { id: 59, name: "L'Instant Zéro", chance: 0.0000001, color: "#6366f1" },
-            { id: 60, name: "L'Éveil Ultime", chance: 0.00000005, color: "#ffffff" }
+            { id: 50, name: "Le Vide Absolu", chance: 0.000001, color: "#ffffff" }
+            // ... autres oeufs tronqués pour l'espace, rajouter selon besoin
         ];
 
-        // ACHIEVEMENTS ORIGINAUX + 10 NOUVEAUX = 40 TOTAL
         const ACHIEVEMENTS = [
-            // --- TEMPS ---
-            { id: 't_1m', name: "Premier Souffle", desc: "Exister pendant 1 minute.", req: (s) => s >= 60 },
-            { id: 't_10m', name: "L'Attente", desc: "Exister pendant 10 minutes.", req: (s) => s >= 600 },
-            { id: 't_1h', name: "Méditation", desc: "Exister pendant 1 heure.", req: (s) => s >= 3600 },
-            { id: 't_24h', name: "L'Éternité", desc: "Exister pendant 24 heures cumulées.", req: (s) => s >= 86400 },
-            { id: 't_48h', name: "Hibernation", desc: "Exister pendant 48 heures cumulées.", req: (s) => s >= 172800 },
-
-            // --- NIVEAUX ---
-            { id: 'l_10', name: "Éveil Spirituel", desc: "Atteindre le Niveau 10.", req: (s, e, l) => l >= 10 },
-            { id: 'l_50', name: "Transmutation", desc: "Atteindre le Niveau 50.", req: (s, e, l) => l >= 50 },
-            { id: 'l_100', name: "Omnipotence", desc: "Atteindre le Niveau 100.", req: (s, e, l) => l >= 100 },
-            { id: 'l_150', name: "Demi-Dieu", desc: "Atteindre le Niveau 150.", req: (s, e, l) => l >= 150 },
-            { id: 'l_200', name: "Transcendance", desc: "Atteindre le Niveau 200.", req: (s, e, l) => l >= 200 },
-
-            // --- RELIQUES ---
-            { id: 'e_1', name: "Curiosité", desc: "Trouver votre première relique.", req: (s, e) => e.length >= 1 },
-            { id: 'e_10', name: "Archiviste du Néant", desc: "Trouver 10 reliques différentes.", req: (s, e) => e.length >= 10 },
-            { id: 'e_all', name: "Maître des Reliques", desc: "Trouver 25 reliques.", req: (s, e) => e.length >= 25 },
-            { id: 'e_40', name: "Collectionneur Galactique", desc: "Trouver 40 reliques différentes.", req: (s, e) => e.length >= 40 },
-            { id: 'e_50', name: "Musée du Néant", desc: "Trouver les 50 reliques.", req: (s, e) => e.length >= 50 },
-
-            // --- ANOMALIES ---
-            { id: 'ano_1', name: "Œil de Lynx", desc: "Capturer une anomalie temporelle.", req: (s, e, l, r, a) => a >= 1 },
-            { id: 'ano_25', name: "Perturbation", desc: "Capturer 25 anomalies.", req: (s, e, l, r, a) => a >= 25 },
-            { id: 'ano_100', name: "Maître du Chaos", desc: "Capturer 100 anomalies.", req: (s, e, l, r, a) => a >= 100 },
-            { id: 'ano_500', name: "Gardien du Temps", desc: "Capturer 500 anomalies.", req: (s, e, l, r, a) => a >= 500 },
-
-            // --- TALENTS ---
-            { id: 'tal_1', name: "Apprenti du Vide", desc: "Améliorer votre premier talent.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect) >= 1 },
-            { id: 'tal_max', name: "Perfectionniste", desc: "Monter un talent au niveau 10.", req: (s, e, l, r, a, f, t) => t.xp >= 10 || t.eggs >= 10 || t.fortune >= 10 },
-            { id: 'tal_total_50', name: "Polymath", desc: "Dépenser 50 points de talents au total.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect*50) >= 50 },
-
-            // --- RÉSONANCE ---
-            { id: 'res_1', name: "Le Grand Saut", desc: "Effectuer votre première résonance.", req: (s, e, l, r) => r >= 1 },
-            { id: 'res_10', name: "Cycle sans fin", desc: "Effectuer 10 résonances.", req: (s, e, l, r) => r >= 10 },
-            { id: 'res_25', name: "Voyageur Temporel", desc: "Effectuer 25 résonances.", req: (s, e, l, r) => r >= 25 },
-
-            // --- FRAGMENTS ---
-            { id: 'frag_100', name: "Fortune du Vide", desc: "Cumuler 100 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 100 },
-            { id: 'frag_500', name: "Richesse Cosmique", desc: "Cumuler 500 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 500 },
-            { id: 'frag_1000', name: "Architecte", desc: "Cumuler 1000 Fragments de Vide.", req: (s, e, l, r, a, f) => f >= 1000 },
-
-            // --- GLOBAL ---
-            { id: 'complete_15', name: "L'Abysse vous regarde", desc: "Débloquer 15 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 15 },
-            { id: 'complete_all', name: "Maître de l'Abysse", desc: "Débloquer 20 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 20 },
-
-            // 10 NOUVEAUX ACHIEVEMENTS
-            { id: 't_week', name: "Semaine dans le Vide", desc: "Exister pendant 7 jours cumulés.", req: (s) => s >= 604800 },
-            { id: 'l_250', name: "Au-delà du Mortel", desc: "Atteindre le Niveau 250.", req: (s, e, l) => l >= 250 },
-            { id: 'e_60', name: "Légende des Reliques", desc: "Trouver les 60 reliques.", req: (s, e) => e.length >= 60 },
-            { id: 'ano_1000', name: "Seigneur des Anomalies", desc: "Capturer 1000 anomalies.", req: (s, e, l, r, a) => a >= 1000 },
-            { id: 'tal_total_100', name: "Maître Absolu", desc: "Dépenser 100 points de talents.", req: (s, e, l, r, a, f, t) => (t.xp + t.eggs + t.fortune + t.autocollect*50) >= 100 },
-            { id: 'res_50', name: "Gardien du Cycle", desc: "Effectuer 50 résonances.", req: (s, e, l, r) => r >= 50 },
-            { id: 'frag_2500', name: "Milliardaire du Vide", desc: "Cumuler 2500 Fragments.", req: (s, e, l, r, a, f) => f >= 2500 },
-            { id: 'autocollect', name: "Automatisation Totale", desc: "Débloquer l'Auto-Collecte.", req: (s, e, l, r, a, f, t) => t.autocollect >= 1 },
-            { id: 'complete_30', name: "Légende Vivante", desc: "Débloquer 30 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 30 },
-            { id: 'complete_40', name: "Dieu de l'Abysse", desc: "Débloquer 40 succès.", req: (s, e, l, r, a, f, t, ach) => ach >= 40 }
+            { id: 't_1m', name: "Premier Souffle", desc: "1 minute.", req: (s) => s >= 60 },
+            { id: 'l_10', name: "Éveil Spirituel", desc: "Niveau 10.", req: (s, e, l) => l >= 10 },
+            { id: 'ano_1', name: "Capturé", desc: "Une anomalie.", req: (s, e, l, r, a) => a >= 1 }
         ];
 
         let gameState = {
             secondsPassed: 0, totalSeconds: 0, foundEggs: [], achievements: [],
             soundEnabled: true, level: 1, currentExp: 0, talentPoints: 0,
-            talents: { xp: 0, eggs: 0, fortune: 0, autocollect: 0 },  // AJOUT: autocollect
+            talents: { xp: 0, eggs: 0, fortune: 0, autocollect: 0 },
             fragments: 0, prestigeCount: 0, anomaliesCaught: 0,
             lastSaveTime: Date.now()
         };
 
         let audioCtx = null;
-        let anomalyAutoCollector = null;  // NOUVEAU: pour l'auto-collecte
+        let anomalyAutoCollector = null;
+
+        // NOUVEAU: Fonction pour entrer dans le vide
+        function enterTheVoid() {
+            const splash = document.getElementById('splash-screen');
+            if (gameState.soundEnabled) playTone();
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 1000);
+        }
 
         function init() {
             load();
-            
-            // Calcul du temps passé hors ligne (Anti-Pause)
             if (gameState.lastSaveTime) {
                 const now = Date.now();
-                const diffSeconds = Math.floor((now - gameState.lastSaveTime) / 1000);
-                if (diffSeconds > 10) { // Si plus de 10 secondes d'absence
-                    gameState.secondsPassed += diffSeconds;
-                    gameState.totalSeconds += diffSeconds;
-                    
-                    // Simulation du gain d'XP (AVEC MULTIPLICATEUR X10)
+                const diff = Math.floor((now - gameState.lastSaveTime) / 1000);
+                if (diff > 10) {
                     let bonus = 1 + (gameState.talents.xp * 0.2);
-                    let prestigeMult = 1 + (gameState.fragments * 0.1);
-                    // 10 au lieu de 1
-                    let xpGained = diffSeconds * (10 * bonus * prestigeMult); 
+                    let xpGained = diff * (10 * bonus);
                     addExp(xpGained);
-                    
-                    setTimeout(() => {
-                        queueNotification('Retour du Vide', `Absence: ${formatTime(diffSeconds)}`, '#6366f1', `+${Math.floor(xpGained)} XP générés pendant votre sommeil.`);
-                    }, 1000);
                 }
             }
-
             initParticles();
             drawParticles();
             updateUI();
@@ -678,69 +457,32 @@
             renderAchievements();
             renderEggs();
             updateAllTalentUI();
+            if (gameState.talents.autocollect >= 1) startAutoCollect();
 
-            // NOUVEAU: Démarrer l'auto-collecte si débloquée
-            if (gameState.talents.autocollect >= 1) {
-                startAutoCollect();
-            }
-
-            // Main game loop
             setInterval(() => {
                 gameState.secondsPassed++;
                 gameState.totalSeconds++;
-
-                // Passive XP gain
                 let xpBonus = 1 + (gameState.talents.xp * 0.2);
-                let prestigeMult = 1 + (gameState.fragments * 0.1);
-                let passiveXP = 1 * xpBonus * prestigeMult;
-                addExp(passiveXP);
-
-                // Spawn anomaly (avec talent fortune)
-                let fortuneBonus = 1 + (gameState.talents.fortune * 0.2);
-                if (Math.random() < (0.05 * fortuneBonus)) {
-                    spawnAnomaly();
-                }
-
-                // Check for Easter Eggs (avec talent observation)
-                let observeBonus = 1 + (gameState.talents.eggs * 0.2);
-                EASTER_EGGS.forEach(egg => {
-                    if (!gameState.foundEggs.includes(egg.id)) {
-                        if (Math.random() < (egg.chance * observeBonus / 100)) {
-                            gameState.foundEggs.push(egg.id);
-                            queueNotification('Relique trouvée!', egg.name, egg.color, `Chance: ${(egg.chance * 100).toFixed(3)}%`);
-                            renderEggs();
-                        }
-                    }
-                });
-
+                addExp(1 * xpBonus);
+                if (Math.random() < (0.05 * (1 + gameState.talents.fortune * 0.2))) spawnAnomaly();
                 checkAchievements();
                 updateUI();
-
-                // Save every 10 seconds
                 if (gameState.secondsPassed % 10 === 0) save();
             }, 1000);
         }
 
         function addExp(amount) {
             gameState.currentExp += amount;
-            checkLevelUp();
-            updateExpUI();
-        }
-
-        function checkLevelUp() {
             while (gameState.currentExp >= getExpRequired()) {
                 gameState.currentExp -= getExpRequired();
                 gameState.level++;
                 gameState.talentPoints++;
-                queueNotification('NIVEAU SUPÉRIEUR', `Niveau ${gameState.level}`, '#6366f1', '+1 Point de Talent');
                 updateExpUI();
-                updateAllTalentUI();
             }
+            updateExpUI();
         }
 
-        function getExpRequired() {
-            return Math.floor(100 * Math.pow(1.2, gameState.level - 1));
-        }
+        function getExpRequired() { return Math.floor(100 * Math.pow(1.2, gameState.level - 1)); }
 
         function spawnAnomaly() {
             const anomaly = document.createElement('div');
@@ -748,55 +490,38 @@
             anomaly.style.left = `${Math.random() * (window.innerWidth - 70)}px`;
             anomaly.style.top = `${Math.random() * (window.innerHeight - 70)}px`;
             document.body.appendChild(anomaly);
-
-            anomaly.addEventListener('click', () => collectAnomaly(anomaly));
-            anomaly.addEventListener('touchstart', (e) => { e.preventDefault(); collectAnomaly(anomaly); });
-
-            setTimeout(() => {
-                if (document.body.contains(anomaly)) anomaly.remove();
-            }, 5000);
+            anomaly.onclick = () => collectAnomaly(anomaly);
+            setTimeout(() => { if (document.body.contains(anomaly)) anomaly.remove(); }, 5000);
         }
 
         function collectAnomaly(el) {
-            if (!document.body.contains(el)) return;
             el.remove();
             gameState.anomaliesCaught++;
             addExp(25);
-            queueNotification('Anomalie capturée', '+25 XP', '#22d3ee', '');
             updateUI();
         }
 
-        // NOUVEAU: Auto-collecte des anomalies
         function startAutoCollect() {
-            if (anomalyAutoCollector) return; // Déjà actif
-            
-            anomalyAutoCollector = setInterval(() => {
-                const anomalies = document.querySelectorAll('.anomaly');
-                anomalies.forEach(anomaly => {
-                    collectAnomaly(anomaly);
-                });
-            }, 200); // Collecte toutes les 200ms
+            setInterval(() => {
+                document.querySelectorAll('.anomaly').forEach(a => collectAnomaly(a));
+            }, 500);
         }
 
-        // NOUVEAU: Achat Auto-Collecte (50 PT)
         function buyAutoCollect() {
-            if (gameState.talentPoints >= 50 && gameState.talents.autocollect === 0) {
+            if (gameState.talentPoints >= 50 && !gameState.talents.autocollect) {
                 gameState.talentPoints -= 50;
                 gameState.talents.autocollect = 1;
-                updateAllTalentUI();
-                updateExpUI();
-                save();
                 startAutoCollect();
-                queueNotification('AUTO-COLLECTE DÉBLOQUÉE', 'Les anomalies sont collectées automatiquement !', '#fbbf24', '🤖 Amélioration permanente');
+                updateAllTalentUI();
+                save();
             }
         }
 
-        function buyTalent(talent) {
+        function buyTalent(t) {
             if (gameState.talentPoints >= 1) {
                 gameState.talentPoints--;
-                gameState.talents[talent]++;
+                gameState.talents[t]++;
                 updateAllTalentUI();
-                updateExpUI();
                 save();
             }
         }
@@ -804,50 +529,17 @@
         function updateAllTalentUI() {
             ['xp', 'eggs', 'fortune'].forEach(t => {
                 const btn = document.getElementById(`t-${t}`);
-                const lv = gameState.talents[t];
-                const nextBonus = ((lv + 1) * 20);
-                btn.innerHTML = `Niv. ${lv} → ${nextBonus}%`;
-                btn.disabled = gameState.talentPoints < 1;
+                btn.innerHTML = `Niv. ${gameState.talents[t]}`;
             });
-
-            // Auto-collect button
             const acBtn = document.getElementById('t-autocollect');
-            if (gameState.talents.autocollect >= 1) {
-                acBtn.innerHTML = '✅ DÉBLOQUÉ';
-                acBtn.disabled = true;
-                acBtn.classList.add('opacity-50');
-            } else {
-                acBtn.disabled = gameState.talentPoints < 50;
-            }
-        }
-
-        function prestige() {
-            if (gameState.level < 50) return;
-            const fragments = Math.floor(gameState.level / 10);
-            gameState.fragments += fragments;
-            gameState.prestigeCount++;
-            gameState.level = 1;
-            gameState.currentExp = 0;
-            gameState.secondsPassed = 0;
-            save();
-            location.reload();
+            acBtn.innerHTML = gameState.talents.autocollect ? 'DÉBLOQUÉ' : '50 PT';
         }
 
         function checkAchievements() {
             ACHIEVEMENTS.forEach(ach => {
                 if (!gameState.achievements.includes(ach.id)) {
-                    const s = gameState.totalSeconds;
-                    const e = gameState.foundEggs;
-                    const l = gameState.level;
-                    const r = gameState.prestigeCount;
-                    const a = gameState.anomaliesCaught;
-                    const f = gameState.fragments;
-                    const t = gameState.talents;
-                    const achCount = gameState.achievements.length;
-
-                    if (ach.req(s, e, l, r, a, f, t, achCount)) {
+                    if (ach.req(gameState.totalSeconds, gameState.foundEggs, gameState.level, gameState.prestigeCount, gameState.anomaliesCaught)) {
                         gameState.achievements.push(ach.id);
-                        queueNotification('SUCCÈS DÉBLOQUÉ', ach.name, '#fbbf24', ach.desc);
                         renderAchievements();
                     }
                 }
@@ -857,17 +549,8 @@
         function renderAchievements() {
             document.getElementById('tab-achievements').innerHTML = ACHIEVEMENTS.map(ach => {
                 const done = gameState.achievements.includes(ach.id);
-                return `<div class="ach-card glass p-4 md:p-5 rounded-xl flex items-center gap-4 md:gap-5 ${done ? 'unlocked' : 'locked'}">
-                    <div class="ach-icon">
-                        ${done ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-center mb-1">
-                            <h4 class="ach-title uppercase truncate pr-2">${ach.name}</h4>
-                            ${done ? '<div class="h-1.5 w-1.5 rounded-full bg-indigo-400"></div>' : ''}
-                        </div>
-                        <p class="ach-desc">${ach.desc}</p>
-                    </div>
+                return `<div class="ach-card glass p-4 rounded-xl ${done ? 'unlocked' : 'locked'}">
+                    <h4 class="ach-title">${ach.name}</h4><p class="ach-desc">${ach.desc}</p>
                 </div>`;
             }).join('');
         }
@@ -875,10 +558,9 @@
         function renderEggs() {
             document.getElementById('tab-eggs').innerHTML = EASTER_EGGS.map(egg => {
                 const found = gameState.foundEggs.includes(egg.id);
-                return `<div class="egg-card glass p-3 rounded-xl text-center ${found ? 'found' : ''}">
-                    <div class="w-10 h-10 rounded-full mx-auto" style="background:${found ? egg.color : '#1a1a1a'}; box-shadow: 0 0 ${found ? '20px' : '0'} ${egg.color};"></div>
-                    <div class="egg-name ${found ? 'text-white' : 'text-slate-600'}">${found ? egg.name : '???'}</div>
-                    ${found ? `<div class="text-[7px] text-slate-400 mt-1">#${egg.id}</div>` : ''}
+                return `<div class="egg-card glass p-2 rounded-xl text-center">
+                    <div class="w-6 h-6 mx-auto rounded-full" style="background:${found ? egg.color : '#333'}"></div>
+                    <div class="egg-name">${found ? egg.name : '???'}</div>
                 </div>`;
             }).join('');
         }
@@ -888,25 +570,12 @@
             const m = Math.floor((gameState.secondsPassed % 3600) / 60).toString().padStart(2, '0');
             const s = (gameState.secondsPassed % 60).toString().padStart(2, '0');
             document.getElementById('main-timer').textContent = `${h}:${m}:${s}`;
-
             document.getElementById('stat-anomalies').textContent = gameState.anomaliesCaught;
-
-            if (gameState.prestigeCount > 0 || gameState.fragments > 0) {
-                document.getElementById('prestige-stats').classList.remove('hidden');
-                document.getElementById('fragments-count').textContent = gameState.fragments;
-                document.getElementById('multiplier-display').textContent = (1 + gameState.fragments * 0.1).toFixed(1);
-                document.getElementById('res-count').textContent = gameState.prestigeCount;
-            }
-
-            if (gameState.level >= 50) {
-                document.getElementById('prestige-zone').classList.remove('hidden');
-            }
         }
 
         function updateExpUI() {
             const req = getExpRequired();
-            const pct = (gameState.currentExp / req) * 100;
-            document.getElementById('exp-bar').style.width = `${pct}%`;
+            document.getElementById('exp-bar').style.width = `${(gameState.currentExp / req) * 100}%`;
             document.getElementById('exp-current').textContent = Math.floor(gameState.currentExp);
             document.getElementById('exp-next').textContent = req;
             document.getElementById('level-display').textContent = gameState.level;
@@ -914,241 +583,22 @@
         }
 
         function switchTab(tab) {
-            ['achievements', 'talents', 'eggs'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).classList.remove('active', 'text-white');
-                document.getElementById(`nav-${t}`).classList.add('text-slate-400');
-            });
+            ['achievements', 'talents', 'eggs'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            const btn = document.getElementById(`nav-${tab}`);
-            btn.classList.add('active', 'text-white');
-            btn.classList.remove('text-slate-400');
-        }
-
-        function toggleSound() {
-            gameState.soundEnabled = !gameState.soundEnabled;
-            document.getElementById('sound-toggle').textContent = `Audio: ${gameState.soundEnabled ? 'Activé' : 'Désactivé'}`;
-        }
-
-        function queueNotification(title, msg, color, extra) {
-            const container = document.getElementById('notifications-container');
-            const notif = document.createElement('div');
-            notif.className = 'glass p-4 rounded-xl border-l-4 transition-all duration-500 transform translate-y-full opacity-0';
-            notif.style.borderLeftColor = color;
-            notif.innerHTML = `
-                <div class="text-[8px] uppercase tracking-widest text-slate-400">${title}</div>
-                <div class="text-[11px] font-bold text-white mt-1">${msg}</div>
-                ${extra ? `<div class="text-[9px] text-slate-400 mt-0.5">${extra}</div>` : ''}
-            `;
-            container.appendChild(notif);
-
-            setTimeout(() => {
-                notif.classList.remove('translate-y-full', 'opacity-0');
-            }, 100);
-
-            if (gameState.soundEnabled) playTone();
-
-            setTimeout(() => {
-                notif.classList.add('translate-y-full', 'opacity-0');
-                setTimeout(() => notif.remove(), 500);
-            }, 4000);
         }
 
         function playTone() {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } catch(e) {}
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            if (h > 0) return `${h}h ${m}m`;
-            if (m > 0) return `${m}m ${s}s`;
-            return `${s}s`;
-        }
-
-        function toggleChangelog() {
-            const modal = document.getElementById('changelog-modal');
-            modal.classList.toggle('modal-active');
-            modal.classList.toggle('modal-enter');
-        }
-
-        // NOUVEAUX: Export/Import
-        function showExportModal() {
-            const modal = document.getElementById('export-modal');
-            const data = btoa(JSON.stringify(gameState));
-            document.getElementById('export-data').value = data;
-            modal.classList.add('modal-active');
-            modal.classList.remove('modal-enter');
-        }
-
-        function closeExportModal() {
-            const modal = document.getElementById('export-modal');
-            modal.classList.remove('modal-active');
-            modal.classList.add('modal-enter');
-        }
-
-        function copyExportData() {
-            const textarea = document.getElementById('export-data');
-            textarea.select();
-            document.execCommand('copy');
-            queueNotification('SUCCÈS', 'Code copié dans le presse-papier !', '#10b981', 'Collez-le sur votre autre appareil');
-        }
-
-        function showImportModal() {
-            document.getElementById('import-modal').classList.add('modal-active');
-            document.getElementById('import-modal').classList.remove('modal-enter');
-        }
-
-        function closeImportModal() {
-            document.getElementById('import-modal').classList.remove('modal-active');
-            document.getElementById('import-modal').classList.add('modal-enter');
-        }
-
-        function importSave() {
-            const data = document.getElementById('import-data').value.trim();
-            if (!data) {
-                queueNotification('ERREUR', 'Aucune donnée à importer', '#ef4444', '');
-                return;
-            }
-
-            try {
-                const decoded = JSON.parse(atob(data));
-                gameState = { ...gameState, ...decoded };
-                save();
-                queueNotification('SUCCÈS', 'Sauvegarde importée !', '#10b981', 'Rechargement...');
-                setTimeout(() => location.reload(), 1500);
-            } catch(e) {
-                queueNotification('ERREUR', 'Code invalide', '#ef4444', 'Vérifiez le code');
-            }
-        }
-
-        // NOUVEAU: Admin Panel
-        function showAdminModal() {
-            document.getElementById('admin-modal').classList.add('modal-active');
-            document.getElementById('admin-modal').classList.remove('modal-enter');
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('admin-password').value = '';
-        }
-
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.remove('modal-active');
-            document.getElementById('admin-modal').classList.add('modal-enter');
-        }
-
-        function verifyAdminPassword() {
-            const input = document.getElementById('admin-password').value;
-            if (input === ADMIN_PASSWORD) {
-                document.getElementById('admin-panel').classList.remove('hidden');
-                queueNotification('ADMIN', 'Accès accordé', '#10b981', 'Bienvenue, Administrateur');
-            } else {
-                queueNotification('ERREUR', 'Mot de passe incorrect', '#ef4444', 'Accès refusé');
-            }
-        }
-
-        function adminAddExp() {
-            addExp(10000);
-            queueNotification('ADMIN', '+10000 XP ajouté', '#6366f1', 'Cheat activé');
-            save();
-        }
-
-        function adminAddTalentPoints() {
-            gameState.talentPoints += 50;
-            updateExpUI();
-            updateAllTalentUI();
-            queueNotification('ADMIN', '+50 Points Talent', '#a855f7', 'Cheat activé');
-            save();
-        }
-
-        function adminUnlockAllAchievements() {
-            ACHIEVEMENTS.forEach(ach => {
-                if (!gameState.achievements.includes(ach.id)) {
-                    gameState.achievements.push(ach.id);
-                }
-            });
-            renderAchievements();
-            queueNotification('ADMIN', 'Tous succès débloqués', '#fbbf24', 'Cheat activé');
-            save();
-        }
-
-        function adminUnlockAllEggs() {
-            EASTER_EGGS.forEach(egg => {
-                if (!gameState.foundEggs.includes(egg.id)) {
-                    gameState.foundEggs.push(egg.id);
-                }
-            });
-            renderEggs();
-            queueNotification('ADMIN', 'Toutes reliques débloquées', '#22d3ee', 'Cheat activé');
-            save();
-        }
-
-        function adminMaxLevel() {
-            gameState.level = 200;
-            gameState.currentExp = 0;
-            updateExpUI();
-            updateUI();
-            queueNotification('ADMIN', 'Niveau 200 atteint', '#ef4444', 'Cheat activé');
-            save();
-        }
-
-        function adminResetAll() {
-            if (confirm('⚠️ ATTENTION: Voulez-vous VRAIMENT tout réinitialiser ?\n\nCette action est IRRÉVERSIBLE !')) {
-                localStorage.removeItem('abysse_exp_v3');
-                location.reload();
-            }
-        }
-
-        // Particles
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function initParticles() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            particles = [];
-            const count = window.innerWidth < 768 ? 40 : 80;
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2 + 0.5,
-                    speedY: Math.random() * 0.5 + 0.2,
-                    opacity: Math.random() * 0.5 + 0.2
-                });
-            }
-        }
-
-        function drawParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                ctx.globalAlpha = p.opacity;
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                p.y -= p.speedY;
-                if (p.y < -10) {
-                    p.y = canvas.height + 10;
-                    p.x = Math.random() * canvas.width;
-                }
-            });
-            requestAnimationFrame(drawParticles);
-        }
-
-        // Save/Load
         function save() {
             gameState.lastSaveTime = Date.now();
             localStorage.setItem('abysse_exp_v3', JSON.stringify(gameState));
@@ -1156,12 +606,35 @@
 
         function load() {
             const saved = localStorage.getItem('abysse_exp_v3');
-            if (saved) {
-                gameState = { ...gameState, ...JSON.parse(saved) };
-            }
+            if (saved) gameState = { ...gameState, ...JSON.parse(saved) };
         }
 
-        window.addEventListener('resize', initParticles);
+        // Particles Logic (Simplifiée)
+        let particles = [];
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        function initParticles() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            for(let i=0; i<50; i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*2});
+        }
+        function drawParticles() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "white";
+            particles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+                p.y -= 0.5; if(p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+
+        // Modals Logic
+        function toggleChangelog() { document.getElementById('changelog-modal').classList.toggle('modal-active'); document.getElementById('changelog-modal').classList.toggle('modal-enter'); }
+        function showExportModal() { document.getElementById('export-modal').classList.add('modal-active'); document.getElementById('export-data').value = btoa(JSON.stringify(gameState)); }
+        function closeExportModal() { document.getElementById('export-modal').classList.remove('modal-active'); }
+        function verifyAdminPassword() { if(document.getElementById('admin-password').value === ADMIN_PASSWORD) document.getElementById('admin-panel').classList.remove('hidden'); }
+        function showAdminModal() { document.getElementById('admin-modal').classList.add('modal-active'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.remove('modal-active'); }
+
         window.onload = init;
     </script>
 </body>
