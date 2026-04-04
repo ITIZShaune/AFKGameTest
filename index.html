@@ -2,471 +2,506 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus Core AI - Interface de Haute Précision</title>
-    
-    <!-- Tailwind CSS avec le plugin Typography pour un beau rendu Markdown -->
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    
-    <!-- Marked.js pour parser le Markdown -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.0.1/marked.min.js"></script>
-    
-    <!-- Highlight.js pour la coloration syntaxique du code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-    
-    <!-- Polices -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS V5 // COMMAND & CONTROL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #3b82f6;
-            --bg: #020617;
-        }
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background-color: var(--bg);
-            color: #f8fafc;
-        }
-        
-        /* Cacher la scrollbar standard */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            --primary: #00f2ff;
+            --danger: #ff0055;
+            --bg-dark: #020617;
+            --panel-bg: rgba(15, 23, 42, 0.8);
         }
 
-        .glass-header {
-            background: rgba(15, 23, 42, 0.75);
+        body {
+            background-color: var(--bg-dark);
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.05) 0%, transparent 80%),
+                linear-gradient(rgba(0, 242, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            transition: filter 0.5s ease;
+        }
+
+        body.stealth-mode {
+            --primary: #8b5cf6;
+            filter: hue-rotate(240deg) brightness(0.8);
+        }
+
+        .glass {
+            background: var(--panel-bg);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
-        
-        .chat-bubble-ai {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px 24px 24px 4px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .chat-bubble-user {
-            background: linear-gradient(135deg, #2563eb, #6366f1);
-            border-radius: 24px 24px 4px 24px;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-        }
-        
-        .input-container {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .input-container:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .pulse-dot {
+
+        .status-pulse {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 12px #22c55e;
-            animation: pulse 2s infinite;
-            transition: all 0.3s ease;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 16px #22c55e; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        
-        /* Personnalisation du rendu Markdown */
-        .prose pre {
-            background-color: #1a1b26 !important; /* Thème Tokyo Night */
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px !important;
-            padding: 1rem !important;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        .prose code {
-            font-family: 'Fira Code', monospace !important;
-            font-size: 0.85em !important;
-        }
-        .prose p {
-            margin-bottom: 0.75em;
-            margin-top: 0.75em;
-        }
-        .prose p:first-child { margin-top: 0; }
-        .prose p:last-child { margin-bottom: 0; }
-        
-        .message-anim {
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        
-        @keyframes slideUp {
-            to { opacity: 1; transform: translateY(0); }
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px currentColor;
         }
 
-        .dot-flashing {
-            position: relative;
-            width: 6px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: #60a5fa;
-            color: #60a5fa;
-            animation: dot-flashing 1s infinite linear alternate;
-            animation-delay: 0.5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-            content: '';
-            display: inline-block;
+        .animate-scan {
             position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             top: 0;
-            width: 6px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: #60a5fa;
-            color: #60a5fa;
-            animation: dot-flashing 1s infinite alternate;
+            animation: scan-move 3s linear infinite;
         }
-        .dot-flashing::before {
-            left: -12px;
-            animation-delay: 0s;
+
+        @keyframes scan-move {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
-        .dot-flashing::after {
-            left: 12px;
-            animation-delay: 1s;
+
+        .log-line {
+            border-left: 2px solid transparent;
+            padding-left: 8px;
+            transition: all 0.2s;
         }
-        @keyframes dot-flashing {
-            0% { background-color: #60a5fa; }
-            50%, 100% { background-color: rgba(96, 165, 250, 0.2); }
+        .log-line:hover {
+            background: rgba(0, 242, 255, 0.05);
+            border-left-color: var(--primary);
         }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid rgba(0, 242, 255, 0.2) !important;
+            color: var(--primary) !important;
+            outline: none !important;
+        }
+        
+        input:focus { border-color: var(--primary) !important; }
+
+        .btn-action {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-attack:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 242, 255, 0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden selection:bg-blue-500/30">
-
-    <!-- Header Fixe -->
-    <nav class="glass-header px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-50 shrink-0">
-        <div class="flex items-center gap-3 sm:gap-4">
-            <div class="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-300 shadow-lg shadow-blue-500/20">
-                <svg viewBox="0 0 24 24" class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                </svg>
-            </div>
+<body class="h-screen flex flex-col p-4 space-y-4">
+    <!-- Top Bar -->
+    <div class="glass p-4 flex justify-between items-center rounded-lg">
+        <div class="flex items-center space-x-6">
             <div>
-                <h1 class="text-lg sm:text-xl font-bold tracking-tight">Nexus <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 font-black">CORE</span></h1>
-                <div class="flex items-center gap-2 mt-0.5">
-                    <div id="status-indicator" class="pulse-dot"></div>
-                    <span id="status-text" class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 tracking-widest">Système En Ligne</span>
+                <h1 class="text-xl font-bold tracking-widest text-white">NEXUS<span class="text-[--primary]">V5</span></h1>
+                <p class="text-[10px] opacity-60">DISTRIBUTED DENIAL CONTROL PANEL</p>
+            </div>
+            <div class="h-8 w-[1px] bg-white/10"></div>
+            <div class="flex space-x-4 text-xs">
+                <div>
+                    <p class="opacity-50">STATUT SYSTÈME</p>
+                    <p class="text-green-400 font-bold"><span class="status-pulse bg-green-400"></span>OPÉRATIONNEL</p>
+                </div>
+                <div>
+                    <p class="opacity-50">LATENCE VPN</p>
+                    <p id="vpn-ping">12ms</p>
                 </div>
             </div>
         </div>
-        <button id="clear-btn" class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all" title="Effacer la mémoire">
-            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-        </button>
-    </nav>
-
-    <!-- Zone de Chat Scrollable -->
-    <main id="chat-view" class="flex-1 overflow-y-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 scrollbar-hide pb-32 sm:pb-40 w-full max-w-5xl mx-auto">
-        <!-- Message de bienvenue -->
-        <div class="flex justify-start w-full message-anim">
-            <div class="chat-bubble-ai p-5 sm:p-6 max-w-[90%] sm:max-w-[85%]">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h2 class="text-blue-400 font-bold text-xs sm:text-sm uppercase tracking-tighter">Diagnostic : Optimal</h2>
-                </div>
-                <div class="prose prose-invert max-w-none text-slate-200 text-sm sm:text-base leading-relaxed">
-                    <p>Nexus est en ligne. L'interface est stabilisée et l'accès au modèle <strong>Gemini 2.5 Flash</strong> est garanti.</p>
-                    <p>Posez-moi votre question ci-dessous, je suis prêt à traiter vos requêtes.</p>
-                </div>
-            </div>
+        <div class="text-right">
+            <p id="current-time" class="text-lg font-bold text-white">00:00:00</p>
+            <p class="text-[10px] opacity-60 uppercase tracking-tighter">Session: <span id="session-id">---</span></p>
         </div>
-    </main>
+    </div>
 
-    <!-- Zone de Saisie Fixe en bas -->
-    <div class="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-[#020617] via-[#020617]/95 to-transparent z-40">
-        <div class="max-w-4xl mx-auto relative">
-            <div class="input-container p-2 sm:p-3 rounded-2xl sm:rounded-3xl shadow-2xl">
-                
-                <!-- Options / Metadata -->
-                <div class="flex items-center gap-3 px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wide">
-                    <label class="flex items-center gap-2 cursor-pointer group hover:text-blue-400 transition-colors">
-                        <input type="checkbox" id="search-toggle" class="rounded border-slate-600 bg-slate-800/50 text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all" checked>
-                        <span>Recherche Web</span>
-                    </label>
-                    <div class="h-3 w-[1px] bg-slate-700"></div>
-                    <span class="flex items-center gap-1.5">
-                        <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        2.5 Flash
-                    </span>
+    <!-- Main Grid -->
+    <div class="flex-grow grid grid-cols-12 gap-4">
+        
+        <!-- Left: Configuration -->
+        <div class="col-span-3 flex flex-col space-y-4">
+            <div class="glass p-4 rounded-lg flex-grow">
+                <h2 class="text-xs font-bold mb-4 border-b border-white/10 pb-2 text-white uppercase tracking-widest">Cible & Méthode</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] opacity-60 block mb-1">ADRESSE IP / DOMAINE</label>
+                        <input type="text" id="target-input" class="w-full p-2 text-sm rounded" value="104.26.12.31">
+                    </div>
+                    <div>
+                        <label class="text-[10px] opacity-60 block mb-1">PORT</label>
+                        <input type="number" id="port-input" class="w-full p-2 text-sm rounded" value="443">
+                    </div>
+                    <div>
+                        <label class="text-[10px] opacity-60 block mb-1">MÉTHODE D'ATTAQUE</label>
+                        <select id="method-select" class="w-full p-2 text-sm rounded cursor-pointer">
+                            <option value="UDP">UDP FLOOD (AMP)</option>
+                            <option value="TCP">TCP-SYN (STEALTH)</option>
+                            <option value="HTTP">HTTP-GET (L7)</option>
+                            <option value="BYPASS">FIREWALL BYPASS</option>
+                        </select>
+                    </div>
+                    <div class="pt-2">
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span>INTENSITÉ DU FLUX</span>
+                            <span id="power-val">85%</span>
+                        </div>
+                        <input type="range" class="w-full accent-[--primary]" min="1" max="100" value="85">
+                    </div>
                 </div>
 
-                <!-- Input Field -->
-                <div class="flex items-end gap-2 sm:gap-3 px-2 pb-1 mt-1">
-                    <textarea 
-                        id="prompt-input" 
-                        rows="1" 
-                        class="w-full bg-transparent border-none focus:ring-0 text-slate-100 placeholder-slate-500 py-2 sm:py-3 text-sm sm:text-base resize-none max-h-32 sm:max-h-48 scrollbar-hide outline-none" 
-                        placeholder="Transmettre une instruction ou poser une question..."
-                    ></textarea>
-                    
-                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-lg shadow-blue-600/30 disabled:opacity-30 disabled:hover:bg-blue-600 transition-all flex-shrink-0 group mb-1">
-                        <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
+                <div class="mt-8 space-y-2">
+                    <button id="attackBtn" class="btn-action btn-attack w-full py-4 border border-[--danger] text-[--danger] font-bold rounded uppercase tracking-widest">
+                        INITIALISER L'ATTAQUE
                     </button>
+                    <button id="abortBtn" class="w-full py-2 bg-white/5 hover:bg-white/10 text-white/40 text-xs rounded transition-all">
+                        ABANDONNER LA SESSION
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Stats -->
+            <div class="glass p-4 rounded-lg h-40">
+                <h2 class="text-xs font-bold mb-2 text-white uppercase">Resources Node</h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[10px]">
+                        <span>CPU USAGE</span>
+                        <span id="cpu-val">12%</span>
+                    </div>
+                    <div class="w-full bg-white/5 h-1 rounded overflow-hidden">
+                        <div id="cpu-bar" class="h-full bg-[--primary] transition-all duration-500" style="width: 12%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] mt-2">
+                        <span>BANDWIDTH UTIL.</span>
+                        <span id="bw-val">1.2 Gbps</span>
+                    </div>
+                    <div class="w-full bg-white/5 h-1 rounded overflow-hidden">
+                        <div id="bw-bar" class="h-full bg-purple-500 transition-all duration-500" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle: Visualization -->
+        <div class="col-span-6 flex flex-col space-y-4">
+            <!-- Map -->
+            <div class="glass rounded-lg flex-grow relative overflow-hidden group">
+                <div class="animate-scan"></div>
+                <div class="absolute top-4 left-4 z-10 flex space-x-2">
+                    <span class="bg-black/60 px-2 py-1 text-[10px] border border-white/10 rounded uppercase">Traffic_Nodes_Map</span>
+                    <span id="status-tag" class="bg-blue-500/20 text-blue-400 px-2 py-1 text-[10px] border border-blue-500/50 rounded uppercase">Standby</span>
+                </div>
+                <canvas id="worldMap" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- Traffic Graph -->
+            <div class="glass rounded-lg h-48 p-4 relative">
+                <h2 class="text-[10px] font-bold mb-2 text-white/50 uppercase">Analyse des Paquets (Real-time)</h2>
+                <canvas id="trafficChart" class="w-full h-32"></canvas>
+            </div>
+        </div>
+
+        <!-- Right: Console -->
+        <div class="col-span-3 flex flex-col space-y-4">
+            <div class="glass rounded-lg flex-grow flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-white/10 flex justify-between items-center bg-black/20">
+                    <span class="text-xs font-bold text-white uppercase">Console d'exécution</span>
+                    <span class="text-[8px] bg-[--primary]/10 px-1 rounded uppercase">Kernel_v5.0</span>
+                </div>
+                <div id="console" class="flex-grow p-4 overflow-y-auto font-mono text-[9px] leading-relaxed space-y-1">
+                    <p class="text-[--primary]/60">// Nexus Kernel v5.0.1 Initialized</p>
+                    <p class="text-[--primary]/60">// Type /help for available directives</p>
+                </div>
+                <div class="p-2 bg-black/40 flex items-center space-x-2 border-t border-white/5">
+                    <span class="text-[--primary] text-xs font-bold animate-pulse">></span>
+                    <input type="text" id="terminalInput" class="bg-transparent border-none w-full text-xs font-mono" placeholder="Saisir directive..." autocomplete="off">
+                </div>
+            </div>
+
+            <div class="glass p-4 rounded-lg">
+                <h2 class="text-xs font-bold mb-3 text-white uppercase">Botnet Cluster</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/40 p-2 rounded border border-white/5 text-center">
+                        <p class="text-[9px] opacity-40 uppercase">Nodes Online</p>
+                        <p id="nodes-count" class="text-lg font-bold">142,001</p>
+                    </div>
+                    <div class="bg-black/40 p-2 rounded border border-white/5 text-center">
+                        <p class="text-[9px] opacity-40 uppercase">Threat Level</p>
+                        <p id="threat-level" class="text-lg font-bold text-green-400 font-bold">LOW</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <div class="flex justify-between items-center text-[9px] opacity-40 px-2 uppercase tracking-tighter">
+        <div class="flex space-x-4">
+            <span>Kernel v9.1.0-nexus-amd64</span>
+            <span>Encrypted: AES-256-GCM</span>
+            <span class="text-red-500">Alert: Unauthorized access is monitored</span>
+        </div>
+        <div>
+            Operator: <span class="text-white">Admin_Nexus</span>
+        </div>
+    </div>
+
     <script>
-        // La clé est fournie par l'environnement d'exécution
-        const apiKey = ""; 
-        const MODEL = "gemini-2.5-flash-preview-09-2025";
+        const consoleEl = document.getElementById('console');
+        const terminalInput = document.getElementById('terminalInput');
+        const attackBtn = document.getElementById('attackBtn');
+        const abortBtn = document.getElementById('abortBtn');
+        const worldMap = document.getElementById('worldMap');
+        const trafficChart = document.getElementById('trafficChart');
+        const statusTag = document.getElementById('status-tag');
+        const threatLevel = document.getElementById('threat-level');
         
-        const SYSTEM_PROMPT = `Tu es Nexus Core, une IA de nouvelle génération conçue avec une interface sombre et moderne. 
-        Tes réponses doivent être :
-        - Extrêmement précises, techniques si nécessaire, et toujours sourcées si la recherche web est activée.
-        - Visuellement parfaites en utilisant le Markdown (utilise des listes, du gras, des blocs de code avec la bonne syntaxe, etc.).
-        - Directes et structurées : pas de blabla inutile, va droit au but avec élégance.
-        - Réponds toujours en Français.`;
+        let isAttacking = false;
+        let isStealth = false;
 
-        const chatView = document.getElementById('chat-view');
-        const input = document.getElementById('prompt-input');
-        const sendBtn = document.getElementById('send-btn');
-        const searchToggle = document.getElementById('search-toggle');
-        const statusDot = document.getElementById('status-indicator');
-        const statusText = document.getElementById('status-text');
+        // Session
+        document.getElementById('session-id').innerText = Math.random().toString(36).substring(2, 10).toUpperCase();
 
-        let chatHistory = [];
+        // Timer
+        setInterval(() => {
+            document.getElementById('current-time').innerText = new Date().toLocaleTimeString('fr-FR', {hour12: false});
+            if(isAttacking) {
+                updateStats();
+                generateLog();
+            }
+        }, 1000);
 
-        // Redimensionnement automatique de la zone de texte
-        input.addEventListener('input', () => {
-            input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 192) + 'px'; // Max 48 rem (192px)
-        });
-
-        // Appel à l'API Gemini
-        async function callAI(text) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+        function updateStats() {
+            const cpu = Math.floor(Math.random() * 40) + 50;
+            const bw = (Math.random() * 5 + 4).toFixed(2);
+            document.getElementById('cpu-val').innerText = cpu + '%';
+            document.getElementById('cpu-bar').style.width = cpu + '%';
+            document.getElementById('bw-val').innerText = bw + ' Gbps';
+            document.getElementById('bw-bar').style.width = (bw * 10) + '%';
+            document.getElementById('vpn-ping').innerText = Math.floor(Math.random() * 5 + 10) + 'ms';
             
-            const payload = {
-                contents: [...chatHistory, { role: "user", parts: [{ text: text }] }],
-                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+            const nodes = parseInt(document.getElementById('nodes-count').innerText.replace(',', ''));
+            document.getElementById('nodes-count').innerText = (nodes + Math.floor(Math.random() * 100 - 40)).toLocaleString();
+        }
+
+        function appendLog(text, type = 'INFO') {
+            const colors = {
+                'INFO': 'text-[--primary]',
+                'SEND': 'text-green-400',
+                'WARN': 'text-yellow-400',
+                'CRIT': 'text-red-500',
+                'CMD': 'text-white font-bold'
             };
-
-            if (searchToggle.checked) {
-                payload.tools = [{ "google_search": {} }];
-            }
-
-            // Exponential backoff
-            const backoff = [1000, 2000, 4000, 8000, 16000];
-            
-            for (let i = 0; i <= backoff.length; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error?.message || `Erreur réseau : ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    const choice = data.candidates?.[0];
-                    
-                    if (!choice) throw new Error("Réponse vide ou bloquée par les filtres de sécurité.");
-
-                    const responseText = choice.content?.parts?.[0]?.text || "*(Aucun texte généré)*";
-                    
-                    // Extraction des sources
-                    let sources = [];
-                    const attributions = choice.groundingMetadata?.groundingAttributions;
-                    if (attributions && Array.isArray(attributions)) {
-                        sources = attributions.map(a => ({ 
-                            uri: a.web?.uri, 
-                            title: a.web?.title 
-                        })).filter(s => s.uri && s.title);
-                    }
-
-                    return { text: responseText, sources: sources };
-
-                } catch (e) {
-                    if (i === backoff.length) throw e;
-                    await new Promise(r => setTimeout(r, backoff[i]));
-                }
-            }
-        }
-
-        // Ajouter un message à l'interface
-        function addMessage(role, text, sources = []) {
-            const isUser = role === 'user';
             const div = document.createElement('div');
-            div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} w-full message-anim`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `p-4 sm:p-5 max-w-[90%] md:max-w-[85%] ${isUser ? 'chat-bubble-user text-white' : 'chat-bubble-ai text-slate-200'}`;
-            
-            if (isUser) {
-                // Texte brut pour l'utilisateur
-                bubble.textContent = text;
-                bubble.style.whiteSpace = 'pre-wrap';
-            } else {
-                // Rendu Markdown pour l'IA (On utilise try catch pour sécuriser)
-                try {
-                    bubble.innerHTML = `<div class="prose prose-invert prose-sm sm:prose-base max-w-none">${marked.parse(text || "")}</div>`;
-                } catch (e) {
-                    bubble.innerHTML = `<div class="prose prose-invert prose-sm sm:prose-base max-w-none"><p>${text}</p></div>`;
-                }
-                
-                // Coloration syntaxique sécurisée
-                bubble.querySelectorAll('pre code').forEach(block => {
-                    try {
-                        hljs.highlightElement(block);
-                    } catch (e) {
-                        console.warn("Erreur de coloration syntaxique", e);
-                    }
-                });
-
-                // Affichage des sources
-                if (sources.length > 0) {
-                    const sContainer = document.createElement('div');
-                    sContainer.className = "mt-4 pt-3 border-t border-slate-700/50 flex flex-wrap gap-2";
-                    
-                    const sourceLabel = document.createElement('span');
-                    sourceLabel.className = "text-[10px] uppercase font-bold text-slate-500 w-full mb-1";
-                    sourceLabel.textContent = "Sources vérifiées";
-                    sContainer.appendChild(sourceLabel);
-
-                    // Supprimer les doublons potentiels d'URL
-                    const uniqueSources = Array.from(new Map(sources.map(item => [item.uri, item])).values());
-
-                    uniqueSources.forEach(s => {
-                        const a = document.createElement('a');
-                        a.href = s.uri;
-                        a.target = "_blank";
-                        a.rel = "noopener noreferrer";
-                        a.className = "flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 bg-slate-800/50 border border-slate-700 hover:bg-blue-500/10 hover:border-blue-500/40 rounded-lg transition-all text-slate-300 hover:text-blue-400 truncate max-w-[200px] sm:max-w-[250px]";
-                        
-                        a.innerHTML = `<svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                       <span class="truncate">${s.title}</span>`;
-                        sContainer.appendChild(a);
-                    });
-                    bubble.appendChild(sContainer);
-                }
-            }
-
-            div.appendChild(bubble);
-            chatView.appendChild(div);
-            scrollToBottom();
+            div.className = 'log-line';
+            div.innerHTML = `<span class="opacity-30">[${new Date().toLocaleTimeString('fr-FR')}]</span> <span class="${colors[type] || 'text-white'}">[${type}]</span> ${text}`;
+            consoleEl.appendChild(div);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            if(consoleEl.childNodes.length > 100) consoleEl.removeChild(consoleEl.firstChild);
         }
 
-        function scrollToBottom() {
-            setTimeout(() => {
-                chatView.scrollTo({ top: chatView.scrollHeight, behavior: 'smooth' });
-            }, 50);
+        const logActions = [
+            "Handshake avec le nœud distant: ",
+            "Paquet fragmenté envoyé à ",
+            "Entrée de table d'état TCP saturée: ",
+            "Bypass de couche 7 via proxy ",
+            "Amplification DNS détectée: ",
+            "Cible : 503 Service Unavailable",
+            "Séquence de flood injectée sur ",
+            "Vérification de la vulnérabilité...",
+            "Injection de traffic malformé: "
+        ];
+
+        function generateLog() {
+            const action = logActions[Math.floor(Math.random() * logActions.length)];
+            const ip = Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.');
+            const types = ['INFO', 'SEND', 'SEND', 'WARN'];
+            appendLog(`${action}${ip}`, types[Math.floor(Math.random() * types.length)]);
         }
 
-        // Gérer le cycle de chargement
-        function setLoading(isLoading) {
-            sendBtn.disabled = isLoading;
-            input.disabled = isLoading;
-            
-            if (isLoading) {
-                statusDot.style.background = '#3b82f6';
-                statusDot.style.boxShadow = '0 0 12px #3b82f6';
-                statusText.textContent = "Traitement...";
-                statusText.classList.replace('text-slate-400', 'text-blue-400');
-                
-                const loaderDiv = document.createElement('div');
-                loaderDiv.id = 'msg-loading';
-                loaderDiv.className = 'flex justify-start w-full message-anim';
-                loaderDiv.innerHTML = `
-                    <div class="chat-bubble-ai p-5 px-6 max-w-[85%] flex items-center h-12">
-                        <div class="dot-flashing ml-3"></div>
-                    </div>`;
-                chatView.appendChild(loaderDiv);
-                scrollToBottom();
-            } else {
-                statusDot.style.background = '#22c55e';
-                statusDot.style.boxShadow = '0 0 12px #22c55e';
-                statusText.textContent = "Système En Ligne";
-                statusText.classList.replace('text-blue-400', 'text-slate-400');
-                
-                const loader = document.getElementById('msg-loading');
-                if (loader) loader.remove();
-            }
-        }
+        // Command Parser
+        terminalInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                const cmd = terminalInput.value.trim().toLowerCase();
+                terminalInput.value = '';
+                if(!cmd) return;
 
-        // Action d'envoi
-        async function handleSend() {
-            const val = input.value.trim();
-            if (!val || sendBtn.disabled) return;
-
-            input.value = '';
-            input.style.height = 'auto';
-            
-            addMessage('user', val);
-            setLoading(true);
-
-            try {
-                const res = await callAI(val);
-                
-                chatHistory.push({ role: "user", parts: [{ text: val }] });
-                chatHistory.push({ role: "model", parts: [{ text: res.text }] });
-                
-                setLoading(false);
-                addMessage('model', res.text, res.sources);
-                
-            } catch (err) {
-                setLoading(false);
-                addMessage('model', `**RUPTURE DE CONNEXION**\n\nErreur rencontrée : \`${err.message}\`\n\n*Veuillez vérifier votre connexion ou reformuler votre requête.*`);
-            }
-        }
-
-        // Écouteurs d'événements
-        sendBtn.addEventListener('click', handleSend);
-        
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); 
-                handleSend();
+                appendLog(`> ${cmd}`, 'CMD');
+                processCommand(cmd);
             }
         });
 
-        document.getElementById('clear-btn').addEventListener('click', () => {
-            chatHistory = [];
-            const welcomeMessage = chatView.firstElementChild;
-            chatView.innerHTML = '';
-            chatView.appendChild(welcomeMessage);
-            
-            const confirmDiv = document.createElement('div');
-            confirmDiv.className = "text-center text-xs text-slate-500 font-medium py-4 message-anim";
-            confirmDiv.textContent = "— Mémoire contextuelle purgée —";
-            chatView.appendChild(confirmDiv);
-            scrollToBottom();
-        });
+        function processCommand(input) {
+            const [cmd, ...args] = input.split(' ');
 
+            switch(cmd) {
+                case '/help':
+                    appendLog("Directives disponibles :", "INFO");
+                    appendLog("- /scan [IP] : Analyse les ports de la cible", "INFO");
+                    appendLog("- /attack : Lance l'offensive globale", "INFO");
+                    appendLog("- /stop : Arrête l'offensive", "INFO");
+                    appendLog("- /stealth : Bascule en mode furtif", "INFO");
+                    appendLog("- /nodes : État des clusters", "INFO");
+                    appendLog("- /clear : Efface la console", "INFO");
+                    appendLog("- /exploit : Tente une injection de payload", "INFO");
+                    appendLog("- /whoami : Infos de session", "INFO");
+                    appendLog("- /ping : Teste la latence C2", "INFO");
+                    break;
+
+                case '/attack':
+                    startAttack();
+                    break;
+
+                case '/stop':
+                    stopAttack();
+                    break;
+
+                case '/scan':
+                    const ip = args[0] || document.getElementById('target-input').value;
+                    appendLog(`Lancement du scan Nmap furtif sur ${ip}...`, "WARN");
+                    setTimeout(() => {
+                        appendLog(`Ports trouvés sur ${ip}: 80/tcp, 443/tcp, 8080/tcp`, "SEND");
+                        appendLog(`Vulnérabilité potentielle: CVE-2023-44487 (HTTP/2 Rapid Reset)`, "CRIT");
+                    }, 2000);
+                    break;
+
+                case '/stealth':
+                    isStealth = !isStealth;
+                    document.body.classList.toggle('stealth-mode');
+                    appendLog(`Mode furtif ${isStealth ? 'ACTIVÉ' : 'DÉSACTIVÉ'}`, "WARN");
+                    break;
+
+                case '/clear':
+                    consoleEl.innerHTML = '';
+                    appendLog("Console réinitialisée.", "INFO");
+                    break;
+
+                case '/nodes':
+                    appendLog("Cluster Alpha: 42,003 nodes (Active)", "SEND");
+                    appendLog("Cluster Beta: 99,998 nodes (Syncing)", "SEND");
+                    appendLog("Cluster Gamma: Offline (Maintenance)", "WARN");
+                    break;
+
+                case '/exploit':
+                    appendLog("Recherche de vecteurs d'entrée...", "WARN");
+                    setTimeout(() => appendLog("Payload SQLi généré...", "INFO"), 1000);
+                    setTimeout(() => appendLog("Injection réussie. Ouverture du reverse shell...", "CRIT"), 2500);
+                    break;
+
+                case '/whoami':
+                    appendLog(`UID: 0 (root)`, "INFO");
+                    appendLog(`Session: ${document.getElementById('session-id').innerText}`, "INFO");
+                    appendLog(`Privilèges: Global_Admin`, "SEND");
+                    break;
+
+                case '/ping':
+                    appendLog("Ping vers Command-Center-01...", "INFO");
+                    setTimeout(() => appendLog("Réponse de 127.0.0.1: temps=12ms", "SEND"), 500);
+                    break;
+
+                default:
+                    appendLog(`Commande inconnue: ${cmd}. Tapez /help pour la liste.`, "CRIT");
+            }
+        }
+
+        function startAttack() {
+            if(isAttacking) return;
+            isAttacking = true;
+            attackBtn.innerText = "OFFENSIVE ACTIVE";
+            attackBtn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+            statusTag.innerText = "Upstream Active";
+            statusTag.className = "bg-red-500/20 text-red-500 px-2 py-1 text-[10px] border border-red-500/50 rounded uppercase animate-pulse";
+            threatLevel.innerText = "CRITICAL";
+            threatLevel.className = "text-lg font-bold text-red-500 animate-pulse";
+            appendLog("SÉQUENCE D'ATTAQUE INITIALISÉE", "CRIT");
+        }
+
+        function stopAttack() {
+            isAttacking = false;
+            attackBtn.innerText = "INITIALISER L'ATTAQUE";
+            attackBtn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+            statusTag.innerText = "Standby";
+            statusTag.className = "bg-blue-500/20 text-blue-400 px-2 py-1 text-[10px] border border-blue-500/50 rounded uppercase";
+            threatLevel.innerText = "LOW";
+            threatLevel.className = "text-lg font-bold text-green-400";
+            document.getElementById('cpu-bar').style.width = '12%';
+            document.getElementById('bw-bar').style.width = '40%';
+            document.getElementById('cpu-val').innerText = '12%';
+            document.getElementById('bw-val').innerText = '1.2 Gbps';
+            appendLog("SÉQUENCE D'ATTAQUE INTERROMPUE", "WARN");
+        }
+
+        attackBtn.onclick = startAttack;
+        abortBtn.onclick = stopAttack;
+
+        // Map & Chart Graphics
+        const ctxMap = worldMap.getContext('2d');
+        const ctxChart = trafficChart.getContext('2d');
+        let nodesData = [];
+        let chartData = Array(50).fill(10);
+
+        function init() {
+            worldMap.width = worldMap.offsetWidth;
+            worldMap.height = worldMap.offsetHeight;
+            trafficChart.width = trafficChart.offsetWidth;
+            trafficChart.height = trafficChart.offsetHeight;
+            for(let i=0; i<50; i++) nodesData.push({ x: Math.random() * 100, y: Math.random() * 100 });
+        }
+        window.onresize = init;
+        init();
+
+        function draw() {
+            // Map
+            ctxMap.fillStyle = 'rgba(2, 6, 23, 0.2)';
+            ctxMap.fillRect(0, 0, worldMap.width, worldMap.height);
+            ctxMap.fillStyle = isStealth ? 'rgba(139, 92, 246, 0.2)' : 'rgba(0, 242, 255, 0.1)';
+            nodesData.forEach(n => {
+                ctxMap.beginPath();
+                ctxMap.arc(n.x / 100 * worldMap.width, n.y / 100 * worldMap.height, 1, 0, Math.PI*2);
+                ctxMap.fill();
+            });
+
+            if(isAttacking) {
+                ctxMap.strokeStyle = 'rgba(255, 0, 85, 0.3)';
+                ctxMap.lineWidth = 0.5;
+                for(let i=0; i<4; i++) {
+                    const n = nodesData[Math.floor(Math.random() * nodesData.length)];
+                    ctxMap.beginPath();
+                    ctxMap.moveTo(n.x / 100 * worldMap.width, n.y / 100 * worldMap.height);
+                    ctxMap.lineTo(worldMap.width / 2, worldMap.height / 2);
+                    ctxMap.stroke();
+                }
+            }
+
+            // Chart
+            ctxChart.clearRect(0,0, trafficChart.width, trafficChart.height);
+            ctxChart.strokeStyle = isAttacking ? '#ff0055' : (isStealth ? '#8b5cf6' : '#00f2ff');
+            ctxChart.lineWidth = 2;
+            ctxChart.beginPath();
+            chartData.shift();
+            chartData.push(isAttacking ? (Math.random() * 70 + 20) : (Math.random() * 10 + 5));
+            const step = trafficChart.width / chartData.length;
+            chartData.forEach((val, i) => {
+                const x = i * step;
+                const y = trafficChart.height - (val / 100 * trafficChart.height);
+                if(i === 0) ctxChart.moveTo(x, y); else ctxChart.lineTo(x, y);
+            });
+            ctxChart.stroke();
+            ctxChart.lineTo(trafficChart.width, trafficChart.height);
+            ctxChart.lineTo(0, trafficChart.height);
+            ctxChart.fillStyle = isAttacking ? 'rgba(255, 0, 85, 0.05)' : 'rgba(0, 242, 255, 0.02)';
+            ctxChart.fill();
+
+            requestAnimationFrame(draw);
+        }
+        draw();
     </script>
 </body>
 </html>
-
-
