@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
     
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
@@ -23,13 +24,47 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .error-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        /* Upload drag-over */
+        .drop-zone-active { border-color: #6366f1 !important; background: rgba(99,102,241,0.07) !important; }
+
+        /* File preview pill */
+        .file-pill { display: flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 4px 10px 4px 6px; font-size: 11px; color: #94a3b8; max-width: 200px; }
+        .file-pill img { width: 32px; height: 32px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+        .file-pill .pill-icon { width: 32px; height: 32px; border-radius: 6px; background: #0f172a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .file-pill .pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .file-pill .pill-remove { cursor: pointer; color: #475569; border: none; background: none; padding: 0; display: flex; align-items: center; flex-shrink: 0; }
+        .file-pill .pill-remove:hover { color: #f87171; }
+
+        /* Message image */
+        .msg-image { border-radius: 14px; max-width: 100%; height: auto; border: 1px solid rgba(99,102,241,0.3); box-shadow: 0 4px 24px rgba(0,0,0,0.4); margin-top: 4px; display: block; }
+
+        /* Attachment in message bubble */
+        .attach-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 3px 8px; color: #a5b4fc; margin-bottom: 6px; }
+
+        /* Upload button hover */
+        .upload-btn { transition: all 0.2s; }
+        .upload-btn:hover { color: #818cf8; background: rgba(99,102,241,0.12); }
+
+        /* Drag overlay */
+        #drag-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.82); border: 2px dashed #6366f1; backdrop-filter: blur(4px); }
+        #drag-overlay.visible { display: flex; pointer-events: all; }
+        #drag-overlay .inner { border: 2px dashed #6366f1; border-radius: 24px; padding: 60px 80px; text-align: center; color: #818cf8; }
     </style>
 </head>
 <body>
     <div id="root"></div>
+    <!-- Global drag overlay -->
+    <div id="drag-overlay">
+        <div class="inner">
+            <div style="font-size:48px;margin-bottom:16px;">📎</div>
+            <div style="font-size:18px;font-weight:700;color:#a5b4fc">Déposer le fichier ici</div>
+            <div style="font-size:12px;margin-top:8px;color:#475569">Images, PDF, TXT, CSV…</div>
+        </div>
+    </div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
         
         // --- CONFIGURATION ---
         const apiKey = "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"; 
@@ -51,30 +86,77 @@
         let auth = null;
         try {
             if (!window.firebase.apps.length) {
-                const app = window.firebase.initializeApp(firebaseConfig);
-                db = window.firebase.firestore();
-                auth = window.firebase.auth();
-            } else {
-                db = window.firebase.firestore();
-                auth = window.firebase.auth();
+                window.firebase.initializeApp(firebaseConfig);
             }
+            db = window.firebase.firestore();
+            auth = window.firebase.auth();
         } catch(e) { console.error("Firebase init failed", e); }
 
+        // ---- Helpers ----
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const fileToText = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
+
+        const isImageFile = (file) => file.type.startsWith('image/');
+        const isPdfFile = (file) => file.type === 'application/pdf';
+        const isTextFile = (file) => file.type.startsWith('text/') || ['application/json', 'text/csv'].includes(file.type);
+
+        const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+
+        const ACCEPTED_TYPES = [
+            'image/jpeg','image/png','image/gif','image/webp',
+            'application/pdf',
+            'text/plain','text/csv','application/json','text/markdown',
+            'text/html','text/javascript','text/css'
+        ];
+
+        // ---- Icon Component ----
         const Icon = ({ name, size = 18, className = "" }) => {
             const iconRef = useRef(null);
             useEffect(() => {
-                if (window.lucide && iconRef.current) {
+                if (window.lucide && window.lucide.icons[name] && iconRef.current) {
+                    const iconData = window.lucide.icons[name];
+                    const svgElement = window.lucide.createElement(iconData);
+                    svgElement.setAttribute('width', size);
+                    svgElement.setAttribute('height', size);
+                    svgElement.setAttribute('stroke-width', 2);
+                    if (className) svgElement.setAttribute('class', className);
                     iconRef.current.innerHTML = '';
-                    const i = document.createElement('i');
-                    i.setAttribute('data-lucide', name);
-                    iconRef.current.appendChild(i);
-                    window.lucide.createIcons({
-                        attrs: { strokeWidth: 2, width: size, height: size, class: className },
-                        nameAttr: 'data-lucide'
-                    });
+                    iconRef.current.appendChild(svgElement);
                 }
             }, [name, size, className]);
             return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
+        };
+
+        // ---- FilePill ----
+        const FilePill = ({ file, preview, onRemove }) => (
+            <div className="file-pill">
+                {preview
+                    ? <img src={preview} alt={file.name} />
+                    : <div className="pill-icon">
+                        {isPdfFile(file) ? <Icon name="file-text" size={16} className="text-red-400" /> : <Icon name="file" size={16} className="text-slate-400" />}
+                      </div>
+                }
+                <span className="pill-name" title={file.name}>{file.name}</span>
+                <button className="pill-remove" onClick={onRemove}><Icon name="x" size={12} /></button>
+            </div>
+        );
+
+        // ---- File icon for extension ----
+        const fileIconName = (file) => {
+            if (isImageFile(file)) return 'image';
+            if (isPdfFile(file)) return 'file-text';
+            return 'file';
         };
 
         const MODES = [
@@ -95,114 +177,253 @@
             const [activeMode, setActiveMode] = useState(MODES[0]);
             const [isSending, setIsSending] = useState(false);
             
+            // Attached files state
+            const [attachedFiles, setAttachedFiles] = useState([]); // [{file, preview, base64|text}]
+
             const [apiKeyStatus, setApiKeyStatus] = useState('checking'); 
             const [dbStatus, setDbStatus] = useState('connecting'); 
             const [lastError, setLastError] = useState(null);
 
             const messagesEndRef = useRef(null);
+            const fileInputRef = useRef(null);
+            const textareaRef = useRef(null);
 
+            // ---- Drag & Drop global ----
             useEffect(() => {
-                const checkApiKey = async () => {
-                    if (!apiKey) {
-                        setApiKeyStatus('invalid');
-                        return;
+                const overlay = document.getElementById('drag-overlay');
+                let dragCounter = 0;
+
+                const onDragEnter = (e) => {
+                    e.preventDefault();
+                    dragCounter++;
+                    if (e.dataTransfer.types.includes('Files')) overlay.classList.add('visible');
+                };
+                const onDragLeave = (e) => {
+                    e.preventDefault();
+                    dragCounter--;
+                    if (dragCounter <= 0) { dragCounter = 0; overlay.classList.remove('visible'); }
+                };
+                const onDragOver = (e) => e.preventDefault();
+                const onDrop = (e) => {
+                    e.preventDefault();
+                    dragCounter = 0;
+                    overlay.classList.remove('visible');
+                    const files = Array.from(e.dataTransfer.files);
+                    handleFiles(files);
+                };
+
+                window.addEventListener('dragenter', onDragEnter);
+                window.addEventListener('dragleave', onDragLeave);
+                window.addEventListener('dragover', onDragOver);
+                window.addEventListener('drop', onDrop);
+                return () => {
+                    window.removeEventListener('dragenter', onDragEnter);
+                    window.removeEventListener('dragleave', onDragLeave);
+                    window.removeEventListener('dragover', onDragOver);
+                    window.removeEventListener('drop', onDrop);
+                };
+            }, []);
+
+            // ---- File paste from clipboard ----
+            useEffect(() => {
+                const onPaste = (e) => {
+                    const items = Array.from(e.clipboardData?.items || []);
+                    const files = items.filter(i => i.kind === 'file').map(i => i.getAsFile()).filter(Boolean);
+                    if (files.length) handleFiles(files);
+                };
+                window.addEventListener('paste', onPaste);
+                return () => window.removeEventListener('paste', onPaste);
+            }, []);
+
+            const handleFiles = useCallback(async (rawFiles) => {
+                setLastError(null);
+                const newAttachments = [];
+                for (const file of rawFiles) {
+                    if (!ACCEPTED_TYPES.includes(file.type)) {
+                        setLastError(`Type non supporté : ${file.name} (${file.type || 'inconnu'})`);
+                        continue;
+                    }
+                    if (file.size > MAX_FILE_SIZE) {
+                        setLastError(`Fichier trop lourd (max 20 Mo) : ${file.name}`);
+                        continue;
                     }
                     try {
-                        const res = await fetch(`https://api.groq.com/openai/v1/models`, {
-                            headers: { 'Authorization': `Bearer ${apiKey}` }
-                        });
-                        if (res.ok) setApiKeyStatus('valid');
-                        else setApiKeyStatus('invalid');
-                    } catch {
-                        setApiKeyStatus('invalid');
+                        let preview = null;
+                        let base64 = null;
+                        let text = null;
+                        if (isImageFile(file)) {
+                            base64 = await fileToBase64(file);
+                            preview = `data:${file.type};base64,${base64}`;
+                        } else if (isPdfFile(file)) {
+                            base64 = await fileToBase64(file);
+                        } else if (isTextFile(file) || file.type === '') {
+                            text = await fileToText(file);
+                        } else {
+                            base64 = await fileToBase64(file);
+                        }
+                        newAttachments.push({ file, preview, base64, text });
+                    } catch (err) {
+                        setLastError(`Erreur lecture : ${file.name}`);
                     }
+                }
+                if (newAttachments.length) setAttachedFiles(prev => [...prev, ...newAttachments]);
+            }, []);
+
+            const removeAttachment = (idx) => {
+                setAttachedFiles(prev => prev.filter((_, i) => i !== idx));
+            };
+
+            // ---- API Key Check ----
+            useEffect(() => {
+                const checkApiKey = async () => {
+                    if (!apiKey) { setApiKeyStatus('invalid'); return; }
+                    try {
+                        const res = await fetch(`https://api.groq.com/openai/v1/models`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
+                        setApiKeyStatus(res.ok ? 'valid' : 'invalid');
+                    } catch { setApiKeyStatus('invalid'); }
                 };
                 checkApiKey();
             }, []);
 
+            // ---- Firebase Auth ----
             useEffect(() => {
                 const initAuth = async () => {
                     if (!auth) { setLoading(false); return; }
                     try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await auth.signInWithCustomToken(__initial_auth_token);
-                        } else {
-                            await auth.signInAnonymously();
-                        }
-                    } catch (err) {
-                        setLastError(`Authentification : ${err.message}`);
-                    } finally { setLoading(false); }
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await auth.signInWithCustomToken(__initial_auth_token);
+                        else await auth.signInAnonymously();
+                    } catch (err) { setLastError(`Authentification : ${err.message}`); }
+                    finally { setLoading(false); }
                 };
                 initAuth();
-                const unsubscribe = auth ? auth.onAuthStateChanged(setUser) : () => {};
-                return () => unsubscribe();
+                const unsub = auth ? auth.onAuthStateChanged(setUser) : () => {};
+                return () => unsub();
             }, []);
 
+            // ---- Firestore Threads ----
             useEffect(() => {
-                if (!user || !db) return;
+                if (!user || !db) { setDbStatus('error'); return; }
                 setDbStatus('online');
-                const threadsRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
-                
-                return threadsRef.onSnapshot(
-                    (snap) => {
-                        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        setThreads(docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
-                    }, 
-                    (err) => {
-                        setDbStatus('error');
-                        setLastError(`Firestore Historique : ${err.message}`);
-                    }
-                );
+                try {
+                    const ref = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
+                    return ref.onSnapshot(
+                        snap => setThreads(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))),
+                        () => setDbStatus('error')
+                    );
+                } catch { setDbStatus('error'); }
             }, [user]);
 
+            // ---- Firestore Messages ----
             useEffect(() => {
                 if (!user || !currentThreadId || !db) { setMessages([]); return; }
-                const msgRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(currentThreadId).collection('messages');
-                
-                return msgRef.onSnapshot(
-                    (snap) => {
-                        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        setMessages(docs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)));
-                    },
-                    (err) => setLastError(`Firestore Messages : ${err.message}`)
-                );
+                try {
+                    const ref = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(currentThreadId).collection('messages');
+                    return ref.onSnapshot(
+                        snap => setMessages(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0))),
+                        err => console.warn("Firestore Messages error:", err)
+                    );
+                } catch(e) { console.warn("Firestore setup error:", e); }
             }, [user, currentThreadId]);
 
-            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isSending]);
 
-            const handleSendMessage = async () => {
-                if (!inputValue.trim() || isSending) return;
-                if (apiKeyStatus === 'invalid') {
-                    setLastError("Le service de génération est indisponible (Clé manquante).");
-                    return;
+            // ---- Build Groq content array from attachments ----
+            const buildUserContent = (text, attachments) => {
+                if (!attachments.length) return text;
+
+                const parts = [];
+
+                // Add each attachment
+                for (const att of attachments) {
+                    if (isImageFile(att.file) && att.base64) {
+                        parts.push({
+                            type: 'image_url',
+                            image_url: { url: `data:${att.file.type};base64,${att.base64}` }
+                        });
+                    } else if (att.text !== null) {
+                        parts.push({
+                            type: 'text',
+                            text: `[Fichier joint : ${att.file.name}]\n\`\`\`\n${att.text.slice(0, 30000)}\n\`\`\``
+                        });
+                    } else if (att.base64 && isPdfFile(att.file)) {
+                        // Groq doesn't support PDF natively — send as document block (text fallback)
+                        parts.push({
+                            type: 'text',
+                            text: `[PDF joint : ${att.file.name} — contenu binaire, analyser depuis la demande utilisateur]`
+                        });
+                    }
                 }
+
+                if (text.trim()) {
+                    parts.push({ type: 'text', text });
+                }
+
+                return parts;
+            };
+
+            // ---- Send Message ----
+            const handleSendMessage = async () => {
+                const hasText = inputValue.trim();
+                const hasFiles = attachedFiles.length > 0;
+                if ((!hasText && !hasFiles) || isSending) return;
+                if (apiKeyStatus === 'invalid') { setLastError("Le service de génération est indisponible (Clé manquante)."); return; }
                 
                 const text = inputValue;
+                const currentAttachments = [...attachedFiles];
                 const isImageMode = activeMode.id === 'image';
+                
                 setInputValue('');
+                setAttachedFiles([]);
+                if (textareaRef.current) { textareaRef.current.style.height = 'auto'; }
                 setIsSending(true);
                 setLastError(null);
 
+                // Build a display summary of attachments for local/firebase storage
+                const attachSummary = currentAttachments.map(a => ({
+                    name: a.file.name,
+                    type: a.file.type,
+                    preview: a.preview || null
+                }));
+
+                let tId = currentThreadId;
+                let isFirebaseWorking = false;
+
                 try {
-                    let tId = currentThreadId;
-                    
-                    if (user && db) {
-                        const userThreadsRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
-                        if (!tId) {
-                            const res = await userThreadsRef.add({
-                                title: text.slice(0, 40) + "...",
-                                mode: activeMode.id,
-                                createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+                    // ÉTAPE 1 : Sauvegarde Firebase
+                    if (user && db && dbStatus === 'online') {
+                        try {
+                            const userThreadsRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
+                            if (!tId) {
+                                const res = await userThreadsRef.add({
+                                    title: (text || attachSummary[0]?.name || 'Fichier').slice(0, 40) + "...",
+                                    mode: activeMode.id,
+                                    createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                                tId = res.id;
+                                setCurrentThreadId(tId);
+                            }
+                            await userThreadsRef.doc(tId).collection('messages').add({ 
+                                role: 'user', 
+                                content: text, 
+                                attachments: attachSummary,
+                                createdAt: window.firebase.firestore.FieldValue.serverTimestamp() 
                             });
-                            tId = res.id;
-                            setCurrentThreadId(tId);
+                            isFirebaseWorking = true;
+                        } catch (fbErr) {
+                            console.warn("Sauvegarde Cloud échouée, mode local:", fbErr);
                         }
-                        await userThreadsRef.doc(tId).collection('messages').add({ 
-                            role: 'user', 
-                            content: text, 
-                            createdAt: window.firebase.firestore.FieldValue.serverTimestamp() 
-                        });
                     }
+
+                    if (!isFirebaseWorking) {
+                        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: text, attachments: attachSummary }]);
+                    }
+
+                    // ÉTAPE 2 : Appel Groq
+                    const userContent = buildUserContent(text, currentAttachments);
+
+                    // Select model: use vision model if images are attached
+                    const hasImages = currentAttachments.some(a => isImageFile(a.file));
+                    const model = hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile";
 
                     let response;
                     let lastErr;
@@ -215,10 +436,10 @@
                                     'Authorization': `Bearer ${apiKey}`
                                 },
                                 body: JSON.stringify({
-                                    model: "llama-3.3-70b-versatile",
+                                    model,
                                     messages: [
                                         { role: "system", content: activeMode.prompt },
-                                        { role: "user", content: text }
+                                        { role: "user", content: userContent }
                                     ],
                                     temperature: 0.7
                                 })
@@ -238,24 +459,66 @@
                     let reply = data.choices?.[0]?.message?.content;
                     if (!reply) throw new Error("Réponse vide générée par l'IA.");
 
-                    // Intercepter la réponse si on est en mode Image
                     if (isImageMode) {
                         const encodedPrompt = encodeURIComponent(reply);
                         reply = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
                     }
 
-                    if (user && db && tId) {
-                        await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(tId).collection('messages').add({
-                            role: 'assistant',
-                            content: reply,
-                            createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                    // ÉTAPE 3 : Sauvegarde réponse IA
+                    if (isFirebaseWorking && user && db && tId) {
+                        try {
+                            await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(tId).collection('messages').add({
+                                role: 'assistant',
+                                content: reply,
+                                createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        } catch { isFirebaseWorking = false; }
                     }
+
+                    if (!isFirebaseWorking) {
+                        setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: reply }]);
+                    }
+
                 } catch (err) {
                     setLastError(`Système : ${err.message}`);
                 } finally {
                     setIsSending(false);
                 }
+            };
+
+            // ---- Message rendering ----
+            const renderMessage = (m) => {
+                const isUser = m.role === 'user';
+                const atts = m.attachments || [];
+                return (
+                    <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-in`}>
+                        <div className={`flex items-start gap-3 max-w-[92%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${isUser ? 'bg-indigo-600' : 'bg-slate-800 border border-slate-700'}`}>
+                                <Icon name={isUser ? 'user' : 'bot'} size={16} className={isUser ? "text-white" : "text-indigo-400"} />
+                            </div>
+                            <div className={`p-4 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap ${isUser ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-200 border border-slate-700/50'}`}>
+                                {/* Render attachments */}
+                                {atts.map((a, i) => (
+                                    <div key={i} style={{marginBottom: '6px'}}>
+                                        {a.preview
+                                            ? <img src={a.preview} alt={a.name} className="msg-image" style={{maxWidth:'300px'}} />
+                                            : <div className="attach-badge">
+                                                <Icon name={a.type === 'application/pdf' ? 'file-text' : 'file'} size={12} />
+                                                <span>{a.name}</span>
+                                              </div>
+                                        }
+                                    </div>
+                                ))}
+                                {/* Render content */}
+                                {m.content && (
+                                    m.content.startsWith('https://image.pollinations.ai')
+                                        ? <img src={m.content} alt="Génération IA" className="msg-image" />
+                                        : <span>{m.content}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
             };
 
             if (loading) return <div className="h-screen flex items-center justify-center bg-[#020617] text-indigo-500 font-bold animate-pulse uppercase tracking-widest text-xs">Chargement de l'environnement ShauneIA...</div>;
@@ -286,7 +549,7 @@
                         <div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
                             <div className="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
                                 <span>Sessions récentes</span>
-                                {dbStatus === 'online' && <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>}
+                                <span className={`w-1.5 h-1.5 rounded-full ${dbStatus === 'online' ? 'bg-indigo-500' : 'bg-red-500'}`} title={dbStatus === 'online' ? 'Cloud Sync Actif' : 'Cloud Sync Inactif'}></span>
                             </div>
                             {threads.length === 0 && <div className="p-6 text-center text-xs text-slate-600 italic">Aucun historique</div>}
                             {threads.map(t => (
@@ -318,7 +581,6 @@
                                     ))}
                                 </div>
                             </div>
-                            
                             <div className="flex items-center gap-4">
                                 <div className="flex flex-col items-end">
                                     <div className="flex items-center gap-2">
@@ -346,6 +608,7 @@
                             </div>
                         )}
 
+                        {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                             {messages.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto animate-in">
@@ -356,12 +619,17 @@
                                         </div>
                                     </div>
                                     <h2 className="text-xl font-bold text-white mb-2 tracking-tight">ShauneIA Opérationnelle</h2>
-                                    <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                                        Votre interface d'intelligence privée via Groq. Posez une question pour commencer.
+                                    <p className="text-slate-500 text-sm leading-relaxed mb-4">
+                                        Votre interface d'intelligence privée via Groq. Posez une question ou joignez un fichier pour commencer.
                                     </p>
+                                    {/* Upload hint */}
+                                    <div className="flex items-center gap-2 text-[11px] text-slate-600 mb-6 bg-slate-900/40 border border-slate-800 rounded-xl px-4 py-2">
+                                        <Icon name="paperclip" size={12} className="text-indigo-500" />
+                                        <span>Images, PDF, TXT… glisser-déposer ou <button className="text-indigo-400 hover:underline" onClick={() => fileInputRef.current?.click()}>parcourir</button></span>
+                                    </div>
                                     <div className="grid grid-cols-2 gap-3 w-full">
                                         {["Conseils stratégiques", "Analyse de données", "Générer une image", "Résolution technique"].map(prompt => (
-                                            <button key={prompt} onClick={() => {setInputValue(prompt)}} className="p-3 text-xs bg-slate-800/30 border border-slate-800 rounded-xl text-slate-400 hover:border-indigo-500/50 hover:text-indigo-400 transition-all text-left">
+                                            <button key={prompt} onClick={() => setInputValue(prompt)} className="p-3 text-xs bg-slate-800/30 border border-slate-800 rounded-xl text-slate-400 hover:border-indigo-500/50 hover:text-indigo-400 transition-all text-left">
                                                 {prompt}
                                             </button>
                                         ))}
@@ -369,22 +637,7 @@
                                 </div>
                             ) : (
                                 <div className="max-w-3xl mx-auto space-y-6 pb-4">
-                                    {messages.map(m => (
-                                        <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in`}>
-                                            <div className={`flex items-start gap-3 max-w-[92%] ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${m.role === 'user' ? 'bg-indigo-600' : 'bg-slate-800 border border-slate-700'}`}>
-                                                    <Icon name={m.role === 'user' ? 'user' : 'bot'} size={16} className={m.role === 'user' ? "text-white" : "text-indigo-400"} />
-                                                </div>
-                                                <div className={`p-4 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-200 border border-slate-700/50'}`}>
-                                                    {m.content.startsWith('https://image.pollinations.ai') ? (
-                                                        <img src={m.content} alt="Génération IA" className="rounded-xl max-w-full h-auto mt-1 shadow-md border border-slate-700/50" />
-                                                    ) : (
-                                                        m.content
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    {messages.map(renderMessage)}
                                     {isSending && (
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700">
@@ -400,31 +653,70 @@
                             )}
                         </div>
 
+                        {/* Input area */}
                         <div className="p-4 md:p-6 bg-gradient-to-t from-[#020617] via-[#020617] to-transparent shrink-0">
-                            <div className={`max-w-3xl mx-auto relative bg-slate-900/80 backdrop-blur-md border border-slate-700/80 rounded-2xl flex items-center p-2 shadow-2xl transition-all ${isSending ? 'opacity-70 pointer-events-none' : 'focus-within:border-indigo-500/50'}`}>
-                                <textarea 
-                                    rows="1"
-                                    value={inputValue}
-                                    onChange={(e) => {
-                                        setInputValue(e.target.value);
-                                        e.target.style.height = 'auto';
-                                        e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-                                    }}
-                                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
-                                    placeholder={isSending ? "Traitement..." : "Posez votre question à ShauneIA..."}
-                                    className="flex-1 bg-transparent border-none focus:ring-0 text-white p-3 resize-none outline-none text-sm max-h-40 custom-scrollbar"
-                                />
-                                <button 
-                                    onClick={handleSendMessage}
-                                    disabled={!inputValue.trim() || isSending}
-                                    className={`p-3 rounded-xl transition-all ${inputValue.trim() && !isSending ? `bg-indigo-600 text-white hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20` : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
-                                >
-                                    {isSending ? <Icon name="loader-2" size={18} className="animate-spin" /> : <Icon name="send" size={18} />}
-                                </button>
+                            <div className={`max-w-3xl mx-auto relative bg-slate-900/80 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl transition-all ${isSending ? 'opacity-70 pointer-events-none' : 'focus-within:border-indigo-500/50'}`}>
+                                
+                                {/* Attached files preview strip */}
+                                {attachedFiles.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 p-3 pb-0">
+                                        {attachedFiles.map((att, i) => (
+                                            <FilePill
+                                                key={i}
+                                                file={att.file}
+                                                preview={att.preview}
+                                                onRemove={() => removeAttachment(i)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="flex items-end p-2">
+                                    {/* Upload button */}
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="upload-btn p-3 rounded-xl text-slate-500 flex-shrink-0"
+                                        title="Joindre un fichier (image, PDF, texte…)"
+                                    >
+                                        <Icon name="paperclip" size={18} />
+                                    </button>
+
+                                    {/* Hidden file input */}
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        multiple
+                                        accept={ACCEPTED_TYPES.join(',')}
+                                        style={{ display: 'none' }}
+                                        onChange={e => { handleFiles(Array.from(e.target.files)); e.target.value = ''; }}
+                                    />
+
+                                    <textarea 
+                                        ref={textareaRef}
+                                        rows="1"
+                                        value={inputValue}
+                                        onChange={(e) => {
+                                            setInputValue(e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                                        }}
+                                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                                        placeholder={isSending ? "Traitement..." : attachedFiles.length ? "Décrivez ce que vous souhaitez faire avec ce fichier…" : "Posez votre question à ShauneIA…"}
+                                        className="flex-1 bg-transparent border-none focus:ring-0 text-white p-3 resize-none outline-none text-sm max-h-40 custom-scrollbar"
+                                    />
+                                    <button 
+                                        onClick={handleSendMessage}
+                                        disabled={(!inputValue.trim() && !attachedFiles.length) || isSending}
+                                        className={`p-3 rounded-xl transition-all flex-shrink-0 ${(inputValue.trim() || attachedFiles.length) && !isSending ? `bg-indigo-600 text-white hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20` : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+                                    >
+                                        {isSending ? <Icon name="loader-2" size={18} className="animate-spin" /> : <Icon name="send" size={18} />}
+                                    </button>
+                                </div>
                             </div>
                             <div className="mt-2 text-center flex items-center justify-center gap-4 text-[9px] text-slate-600 font-medium">
                                 <span>ShauneIA V2 (Groq) - Système Privé</span>
                                 <span className="flex items-center gap-1 uppercase tracking-tighter opacity-50"><Icon name="shield-check" size={10}/> Connexion Sécurisée</span>
+                                <span className="flex items-center gap-1 uppercase tracking-tighter opacity-50"><Icon name="paperclip" size={10}/> Upload Fichiers Actif</span>
                             </div>
                         </div>
                     </main>
