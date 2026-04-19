@@ -33,7 +33,7 @@
         const { useState, useEffect, useRef } = React;
         
         // --- CONFIGURATION ---
-        const apiKey = "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"; // La clé sera injectée par l'environnement au runtime
+        const apiKey = "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"; 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'shaune-ia-v2';
         
         let firebaseConfig = {};
@@ -65,13 +65,17 @@
             const iconRef = useRef(null);
             useEffect(() => {
                 if (window.lucide && iconRef.current) {
+                    iconRef.current.innerHTML = '';
+                    const i = document.createElement('i');
+                    i.setAttribute('data-lucide', name);
+                    iconRef.current.appendChild(i);
                     window.lucide.createIcons({
                         attrs: { strokeWidth: 2, width: size, height: size, class: className },
                         nameAttr: 'data-lucide'
                     });
                 }
             }, [name, size, className]);
-            return <i data-lucide={name} ref={iconRef} className={className}></i>;
+            return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
         };
 
         const MODES = [
@@ -91,14 +95,12 @@
             const [activeMode, setActiveMode] = useState(MODES[0]);
             const [isSending, setIsSending] = useState(false);
             
-            // États de statut
             const [apiKeyStatus, setApiKeyStatus] = useState('checking'); 
             const [dbStatus, setDbStatus] = useState('connecting'); 
             const [lastError, setLastError] = useState(null);
 
             const messagesEndRef = useRef(null);
 
-            // Vérification de la clé API
             useEffect(() => {
                 const checkApiKey = async () => {
                     if (!apiKey) {
@@ -106,7 +108,9 @@
                         return;
                     }
                     try {
-                        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025?key=${apiKey}`);
+                        const res = await fetch(`https://api.groq.com/openai/v1/models`, {
+                            headers: { 'Authorization': `Bearer ${apiKey}` }
+                        });
                         if (res.ok) setApiKeyStatus('valid');
                         else setApiKeyStatus('invalid');
                     } catch {
@@ -116,7 +120,6 @@
                 checkApiKey();
             }, []);
 
-            // Auth (RÈGLE 3)
             useEffect(() => {
                 const initAuth = async () => {
                     if (!auth) { setLoading(false); return; }
@@ -135,7 +138,6 @@
                 return () => unsubscribe();
             }, []);
 
-            // Threads
             useEffect(() => {
                 if (!user || !db) return;
                 setDbStatus('online');
@@ -153,7 +155,6 @@
                 );
             }, [user]);
 
-            // Messages
             useEffect(() => {
                 if (!user || !currentThreadId || !db) { setMessages([]); return; }
                 const msgRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(currentThreadId).collection('messages');
@@ -206,12 +207,19 @@
                     let lastErr;
                     for (let i = 0; i < 3; i++) {
                         try {
-                            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${apiKey}`
+                                },
                                 body: JSON.stringify({
-                                    contents: [{ parts: [{ text }] }],
-                                    systemInstruction: { parts: [{ text: activeMode.prompt }] }
+                                    model: "llama-3.3-70b-versatile",
+                                    messages: [
+                                        { role: "system", content: activeMode.prompt },
+                                        { role: "user", content: text }
+                                    ],
+                                    temperature: 0.7
                                 })
                             });
                             if (response.ok) break;
@@ -223,10 +231,10 @@
                         await new Promise(r => setTimeout(r, 1000 * (i + 1)));
                     }
 
-                    if (!response || !response.ok) throw new Error(lastErr || "Échec de connexion au service.");
+                    if (!response || !response.ok) throw new Error(lastErr || "Échec de connexion au service Groq.");
 
                     const data = await response.json();
-                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    const reply = data.choices?.[0]?.message?.content;
                     if (!reply) throw new Error("Réponse vide générée par l'IA.");
 
                     if (user && db && tId) {
@@ -307,7 +315,7 @@
                             <div className="flex items-center gap-4">
                                 <div className="flex flex-col items-end">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">API STATUS</span>
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">GROQ STATUS</span>
                                         <div className={`w-2 h-2 rounded-full ${apiKeyStatus === 'valid' ? 'bg-emerald-500' : apiKeyStatus === 'checking' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -342,7 +350,7 @@
                                     </div>
                                     <h2 className="text-xl font-bold text-white mb-2 tracking-tight">ShauneIA Opérationnelle</h2>
                                     <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                                        Votre interface d'intelligence privée. Posez une question pour commencer.
+                                        Votre interface d'intelligence privée via Groq. Posez une question pour commencer.
                                     </p>
                                     <div className="grid grid-cols-2 gap-3 w-full">
                                         {["Conseils stratégiques", "Analyse de données", "Rédaction créative", "Résolution technique"].map(prompt => (
@@ -367,9 +375,9 @@
                                         </div>
                                     ))}
                                     {isSending && (
-                                        <div className="flex items-center gap-3 animate-pulse">
+                                        <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700">
-                                                <Icon name="loader-2" size={16} className="text-indigo-500 animate-spin" />
+                                                <Icon name="loader-2" size={16} className="text-indigo-500" />
                                             </div>
                                             <div className="p-4 rounded-2xl bg-slate-800 border border-slate-700/50 text-indigo-400 text-xs italic">
                                                 ShauneIA traite votre demande...
@@ -400,11 +408,11 @@
                                     disabled={!inputValue.trim() || isSending}
                                     className={`p-3 rounded-xl transition-all ${inputValue.trim() && !isSending ? `bg-indigo-600 text-white hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20` : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
                                 >
-                                    {isSending ? <Icon name="loader-2" size={18} className="animate-spin" /> : <Icon name="send" size={18} />}
+                                    {isSending ? <Icon name="loader-2" size={18} /> : <Icon name="send" size={18} />}
                                 </button>
                             </div>
                             <div className="mt-2 text-center flex items-center justify-center gap-4 text-[9px] text-slate-600 font-medium">
-                                <span>ShauneIA V2 - Système Privé</span>
+                                <span>ShauneIA V2 (Groq) - Système Privé</span>
                                 <span className="flex items-center gap-1 uppercase tracking-tighter opacity-50"><Icon name="shield-check" size={10}/> Connexion Sécurisée</span>
                             </div>
                         </div>
