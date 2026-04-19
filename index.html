@@ -8,12 +8,8 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -21,78 +17,29 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
         .animate-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .error-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Upload drag-over */
-        .drop-zone-active { border-color: #6366f1 !important; background: rgba(99,102,241,0.07) !important; }
-
-        /* File preview pill */
-        .file-pill { display: flex; align-items: center; gap: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 4px 10px 4px 6px; font-size: 11px; color: #94a3b8; max-width: 200px; }
-        .file-pill img { width: 32px; height: 32px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
-        .file-pill .pill-icon { width: 32px; height: 32px; border-radius: 6px; background: #0f172a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .file-pill .pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .file-pill .pill-remove { cursor: pointer; color: #475569; border: none; background: none; padding: 0; display: flex; align-items: center; flex-shrink: 0; }
+        .file-pill { display: flex; align-items: center; gap: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 6px 12px; font-size: 11px; color: #94a3b8; max-width: 220px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .file-pill img { width: 32px; height: 32px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+        .file-pill .pill-icon { width: 32px; height: 32px; border-radius: 8px; background: #0f172a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+        .file-pill .pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+        .file-pill .pill-remove { cursor: pointer; color: #475569; border: none; background: none; padding: 2px; display: flex; align-items: center; flex-shrink: 0; transition: color 0.2s; }
         .file-pill .pill-remove:hover { color: #f87171; }
 
-        /* Message image */
-        .msg-image { border-radius: 14px; max-width: 100%; height: auto; border: 1px solid rgba(99,102,241,0.3); box-shadow: 0 4px 24px rgba(0,0,0,0.4); margin-top: 4px; display: block; }
-
-        /* Attachment in message bubble */
-        .attach-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 8px; padding: 3px 8px; color: #a5b4fc; margin-bottom: 6px; }
-
-        /* Upload button hover */
-        .upload-btn { transition: all 0.2s; }
-        .upload-btn:hover { color: #818cf8; background: rgba(99,102,241,0.12); }
-
-        /* Drag overlay */
-        #drag-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.82); border: 2px dashed #6366f1; backdrop-filter: blur(4px); }
-        #drag-overlay.visible { display: flex; pointer-events: all; }
-        #drag-overlay .inner { border: 2px dashed #6366f1; border-radius: 24px; padding: 60px 80px; text-align: center; color: #818cf8; }
+        .msg-image { border-radius: 16px; max-width: 100%; height: auto; border: 1px solid rgba(99,102,241,0.2); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); margin-top: 8px; display: block; }
+        .suggestion-card { background: #0f172a; border: 1px solid #1e293b; transition: all 0.2s; cursor: pointer; }
+        .suggestion-card:hover { border-color: #6366f1; background: #1e293b; transform: translateY(-2px); }
     </style>
 </head>
 <body>
     <div id="root"></div>
-    <!-- Global drag overlay -->
-    <div id="drag-overlay">
-        <div class="inner">
-            <div style="font-size:48px;margin-bottom:16px;">📎</div>
-            <div style="font-size:18px;font-weight:700;color:#a5b4fc">Déposer le fichier ici</div>
-            <div style="font-size:12px;margin-top:8px;color:#475569">Images, PDF, TXT, CSV…</div>
-        </div>
-    </div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+        const { useState, useEffect, useRef } = React;
         
-        // --- CONFIGURATION ---
         const apiKey = "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"; 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'shaune-ia-v2';
-        
-        let firebaseConfig = {};
-        try {
-            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                apiKey: "AIzaSyDKi9twN2oJYy_t0GJCBWvAjEqzXNZDhRk",
-                authDomain: "shauneia-10301.firebaseapp.com",
-                projectId: "shauneia-10301",
-                storageBucket: "shauneia-10301.firebasestorage.app",
-                messagingSenderId: "1046149320765",
-                appId: "1:1046149320765:web:a4ff9e9db7c0cb50161a54"
-            };
-        } catch(e) { console.error("Firebase config error", e); }
+        const STORAGE_KEY = "shaune_ia_local_data_v2";
 
-        let db = null;
-        let auth = null;
-        try {
-            if (!window.firebase.apps.length) {
-                window.firebase.initializeApp(firebaseConfig);
-            }
-            db = window.firebase.firestore();
-            auth = window.firebase.auth();
-        } catch(e) { console.error("Firebase init failed", e); }
-
-        // ---- Helpers ----
         const fileToBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -108,624 +55,289 @@
         });
 
         const isImageFile = (file) => file.type.startsWith('image/');
-        const isPdfFile = (file) => file.type === 'application/pdf';
         const isTextFile = (file) => file.type.startsWith('text/') || ['application/json', 'text/csv'].includes(file.type);
 
-        const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-
-        const ACCEPTED_TYPES = [
-            'image/jpeg','image/png','image/gif','image/webp',
-            'application/pdf',
-            'text/plain','text/csv','application/json','text/markdown',
-            'text/html','text/javascript','text/css'
+        const MODES = [
+            { id: 'chat', label: 'Chat', icon: 'bi-chat-dots', prompt: "Tu es ShauneIA, un assistant intelligent. Réponds en français de manière concise." },
+            { id: 'code', label: 'Code', icon: 'bi-code-slash', prompt: "Tu es ShauneIA Code. Expert en développement logiciel." },
+            { id: 'image', label: 'Image', icon: 'bi-palette', prompt: "Tu es un expert en création de requêtes pour générateurs d'images. Traduis l'idée de l'utilisateur en un prompt descriptif ultra détaillé en anglais. Ne renvoie QUE le texte du prompt en anglais." },
+            { id: 'libre', label: 'Libre', icon: 'bi-lightning-charge', prompt: "Tu es ShauneIA Libre. Réponds avec franchise et efficacité." }
         ];
 
-        // ---- Icon Component ----
-        const Icon = ({ name, size = 18, className = "" }) => {
-            const iconRef = useRef(null);
-            useEffect(() => {
-                if (window.lucide && window.lucide.icons[name] && iconRef.current) {
-                    const iconData = window.lucide.icons[name];
-                    const svgElement = window.lucide.createElement(iconData);
-                    svgElement.setAttribute('width', size);
-                    svgElement.setAttribute('height', size);
-                    svgElement.setAttribute('stroke-width', 2);
-                    if (className) svgElement.setAttribute('class', className);
-                    iconRef.current.innerHTML = '';
-                    iconRef.current.appendChild(svgElement);
-                }
-            }, [name, size, className]);
-            return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
-        };
-
-        // ---- FilePill ----
-        const FilePill = ({ file, preview, onRemove }) => (
-            <div className="file-pill">
-                {preview
-                    ? <img src={preview} alt={file.name} />
-                    : <div className="pill-icon">
-                        {isPdfFile(file) ? <Icon name="file-text" size={16} className="text-red-400" /> : <Icon name="file" size={16} className="text-slate-400" />}
-                      </div>
-                }
-                <span className="pill-name" title={file.name}>{file.name}</span>
-                <button className="pill-remove" onClick={onRemove}><Icon name="x" size={12} /></button>
-            </div>
-        );
-
-        // ---- File icon for extension ----
-        const fileIconName = (file) => {
-            if (isImageFile(file)) return 'image';
-            if (isPdfFile(file)) return 'file-text';
-            return 'file';
-        };
-
-        const MODES = [
-            { id: 'chat', label: 'Conversation', icon: 'message-square', color: 'from-blue-600 to-indigo-600', prompt: "Tu es ShauneIA, un assistant intelligent. Réponds en français de manière concise." },
-            { id: 'code', label: 'Code & Dev', icon: 'code', color: 'from-emerald-500 to-teal-600', prompt: "Tu es ShauneIA Code. Expert en développement logiciel." },
-            { id: 'image', label: 'Images', icon: 'image', color: 'from-pink-500 to-purple-600', prompt: "Tu es un expert en création de requêtes pour générateurs d'images. Traduis l'idée de l'utilisateur en un prompt descriptif ultra détaillé en anglais. Ne renvoie QUE le texte du prompt en anglais, aucun autre commentaire." },
-            { id: 'libre', label: 'Libre', icon: 'zap', color: 'from-orange-500 to-red-600', prompt: "Tu es ShauneIA Libre. Réponds avec franchise et efficacité." }
+        const SUGGESTIONS = [
+            { title: "Générer une image", text: "Un paysage cyberpunk sous la pluie avec des néons", icon: "bi-image", mode: "image" },
+            { title: "Analyser du code", text: "Explique-moi comment fonctionne cette fonction JavaScript", icon: "bi-braces", mode: "code" },
+            { title: "Rédiger un mail", text: "Écris un mail professionnel pour demander un congé", icon: "bi-envelope", mode: "chat" },
+            { title: "Aide créative", text: "Donne-moi 5 idées de noms pour une startup IA", icon: "bi-lightbulb", mode: "libre" }
         ];
 
         function App() {
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [isSidebarOpen, setIsSidebarOpen] = useState(true);
             const [threads, setThreads] = useState([]);
             const [currentThreadId, setCurrentThreadId] = useState(null);
-            const [messages, setMessages] = useState([]);
+            const [isSidebarOpen, setIsSidebarOpen] = useState(true);
             const [inputValue, setInputValue] = useState('');
             const [activeMode, setActiveMode] = useState(MODES[0]);
             const [isSending, setIsSending] = useState(false);
-            
-            // Attached files state
-            const [attachedFiles, setAttachedFiles] = useState([]); // [{file, preview, base64|text}]
-
-            const [apiKeyStatus, setApiKeyStatus] = useState('checking'); 
-            const [dbStatus, setDbStatus] = useState('connecting'); 
+            const [attachedFiles, setAttachedFiles] = useState([]);
             const [lastError, setLastError] = useState(null);
 
             const messagesEndRef = useRef(null);
             const fileInputRef = useRef(null);
-            const textareaRef = useRef(null);
 
-            // ---- Drag & Drop global ----
             useEffect(() => {
-                const overlay = document.getElementById('drag-overlay');
-                let dragCounter = 0;
-
-                const onDragEnter = (e) => {
-                    e.preventDefault();
-                    dragCounter++;
-                    if (e.dataTransfer.types.includes('Files')) overlay.classList.add('visible');
-                };
-                const onDragLeave = (e) => {
-                    e.preventDefault();
-                    dragCounter--;
-                    if (dragCounter <= 0) { dragCounter = 0; overlay.classList.remove('visible'); }
-                };
-                const onDragOver = (e) => e.preventDefault();
-                const onDrop = (e) => {
-                    e.preventDefault();
-                    dragCounter = 0;
-                    overlay.classList.remove('visible');
-                    const files = Array.from(e.dataTransfer.files);
-                    handleFiles(files);
-                };
-
-                window.addEventListener('dragenter', onDragEnter);
-                window.addEventListener('dragleave', onDragLeave);
-                window.addEventListener('dragover', onDragOver);
-                window.addEventListener('drop', onDrop);
-                return () => {
-                    window.removeEventListener('dragenter', onDragEnter);
-                    window.removeEventListener('dragleave', onDragLeave);
-                    window.removeEventListener('dragover', onDragOver);
-                    window.removeEventListener('drop', onDrop);
-                };
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    try { setThreads(JSON.parse(saved)); } catch (e) { console.error(e); }
+                }
             }, []);
 
-            // ---- File paste from clipboard ----
             useEffect(() => {
-                const onPaste = (e) => {
-                    const items = Array.from(e.clipboardData?.items || []);
-                    const files = items.filter(i => i.kind === 'file').map(i => i.getAsFile()).filter(Boolean);
-                    if (files.length) handleFiles(files);
-                };
-                window.addEventListener('paste', onPaste);
-                return () => window.removeEventListener('paste', onPaste);
-            }, []);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
+            }, [threads]);
 
-            const handleFiles = useCallback(async (rawFiles) => {
-                setLastError(null);
+            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [threads, currentThreadId, isSending]);
+
+            const currentThread = threads.find(t => t.id === currentThreadId);
+            const messages = currentThread ? currentThread.messages : [];
+
+            const handleFiles = async (rawFiles) => {
                 const newAttachments = [];
                 for (const file of rawFiles) {
-                    if (!ACCEPTED_TYPES.includes(file.type)) {
-                        setLastError(`Type non supporté : ${file.name} (${file.type || 'inconnu'})`);
-                        continue;
-                    }
-                    if (file.size > MAX_FILE_SIZE) {
-                        setLastError(`Fichier trop lourd (max 20 Mo) : ${file.name}`);
-                        continue;
-                    }
                     try {
-                        let preview = null;
-                        let base64 = null;
-                        let text = null;
+                        let preview = null, base64 = null, text = null;
                         if (isImageFile(file)) {
                             base64 = await fileToBase64(file);
                             preview = `data:${file.type};base64,${base64}`;
-                        } else if (isPdfFile(file)) {
-                            base64 = await fileToBase64(file);
-                        } else if (isTextFile(file) || file.type === '') {
+                        } else if (isTextFile(file)) {
                             text = await fileToText(file);
                         } else {
                             base64 = await fileToBase64(file);
                         }
-                        newAttachments.push({ file, preview, base64, text });
-                    } catch (err) {
-                        setLastError(`Erreur lecture : ${file.name}`);
-                    }
+                        newAttachments.push({ name: file.name, type: file.type, preview, base64, text });
+                    } catch (err) { console.error(err); }
                 }
-                if (newAttachments.length) setAttachedFiles(prev => [...prev, ...newAttachments]);
-            }, []);
-
-            const removeAttachment = (idx) => {
-                setAttachedFiles(prev => prev.filter((_, i) => i !== idx));
+                setAttachedFiles(prev => [...prev, ...newAttachments]);
             };
 
-            // ---- API Key Check ----
-            useEffect(() => {
-                const checkApiKey = async () => {
-                    if (!apiKey) { setApiKeyStatus('invalid'); return; }
-                    try {
-                        const res = await fetch(`https://api.groq.com/openai/v1/models`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
-                        setApiKeyStatus(res.ok ? 'valid' : 'invalid');
-                    } catch { setApiKeyStatus('invalid'); }
-                };
-                checkApiKey();
-            }, []);
-
-            // ---- Firebase Auth ----
-            useEffect(() => {
-                const initAuth = async () => {
-                    if (!auth) { setLoading(false); return; }
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await auth.signInWithCustomToken(__initial_auth_token);
-                        else await auth.signInAnonymously();
-                    } catch (err) { setLastError(`Authentification : ${err.message}`); }
-                    finally { setLoading(false); }
-                };
-                initAuth();
-                const unsub = auth ? auth.onAuthStateChanged(setUser) : () => {};
-                return () => unsub();
-            }, []);
-
-            // ---- Firestore Threads ----
-            useEffect(() => {
-                if (!user || !db) { setDbStatus('error'); return; }
-                setDbStatus('online');
-                try {
-                    const ref = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
-                    return ref.onSnapshot(
-                        snap => setThreads(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))),
-                        () => setDbStatus('error')
-                    );
-                } catch { setDbStatus('error'); }
-            }, [user]);
-
-            // ---- Firestore Messages ----
-            useEffect(() => {
-                if (!user || !currentThreadId || !db) { setMessages([]); return; }
-                try {
-                    const ref = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(currentThreadId).collection('messages');
-                    return ref.onSnapshot(
-                        snap => setMessages(snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0))),
-                        err => console.warn("Firestore Messages error:", err)
-                    );
-                } catch(e) { console.warn("Firestore setup error:", e); }
-            }, [user, currentThreadId]);
-
-            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isSending]);
-
-            // ---- Build Groq content array from attachments ----
-            const buildUserContent = (text, attachments) => {
-                if (!attachments.length) return text;
-
-                const parts = [];
-
-                // Add each attachment
-                for (const att of attachments) {
-                    if (isImageFile(att.file) && att.base64) {
-                        parts.push({
-                            type: 'image_url',
-                            image_url: { url: `data:${att.file.type};base64,${att.base64}` }
-                        });
-                    } else if (att.text !== null) {
-                        parts.push({
-                            type: 'text',
-                            text: `[Fichier joint : ${att.file.name}]\n\`\`\`\n${att.text.slice(0, 30000)}\n\`\`\``
-                        });
-                    } else if (att.base64 && isPdfFile(att.file)) {
-                        // Groq doesn't support PDF natively — send as document block (text fallback)
-                        parts.push({
-                            type: 'text',
-                            text: `[PDF joint : ${att.file.name} — contenu binaire, analyser depuis la demande utilisateur]`
-                        });
-                    }
-                }
-
-                if (text.trim()) {
-                    parts.push({ type: 'text', text });
-                }
-
-                return parts;
-            };
-
-            // ---- Send Message ----
-            const handleSendMessage = async () => {
-                const hasText = inputValue.trim();
+            const handleSendMessage = async (customText = null, customMode = null) => {
+                const textToSend = customText !== null ? customText : inputValue;
+                const modeToSend = customMode !== null ? customMode : activeMode;
+                
+                const hasText = textToSend.trim();
                 const hasFiles = attachedFiles.length > 0;
                 if ((!hasText && !hasFiles) || isSending) return;
-                if (apiKeyStatus === 'invalid') { setLastError("Le service de génération est indisponible (Clé manquante)."); return; }
                 
-                const text = inputValue;
-                const currentAttachments = [...attachedFiles];
-                const isImageMode = activeMode.id === 'image';
-                
+                const attachments = [...attachedFiles];
                 setInputValue('');
                 setAttachedFiles([]);
-                if (textareaRef.current) { textareaRef.current.style.height = 'auto'; }
                 setIsSending(true);
                 setLastError(null);
 
-                // Build a display summary of attachments for local/firebase storage
-                const attachSummary = currentAttachments.map(a => ({
-                    name: a.file.name,
-                    type: a.file.type,
-                    preview: a.preview || null
-                }));
-
-                let tId = currentThreadId;
-                let isFirebaseWorking = false;
-
                 try {
-                    // ÉTAPE 1 : Sauvegarde Firebase
-                    if (user && db && dbStatus === 'online') {
-                        try {
-                            const userThreadsRef = db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads');
-                            if (!tId) {
-                                const res = await userThreadsRef.add({
-                                    title: (text || attachSummary[0]?.name || 'Fichier').slice(0, 40) + "...",
-                                    mode: activeMode.id,
-                                    createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
-                                });
-                                tId = res.id;
-                                setCurrentThreadId(tId);
-                            }
-                            await userThreadsRef.doc(tId).collection('messages').add({ 
-                                role: 'user', 
-                                content: text, 
-                                attachments: attachSummary,
-                                createdAt: window.firebase.firestore.FieldValue.serverTimestamp() 
-                            });
-                            isFirebaseWorking = true;
-                        } catch (fbErr) {
-                            console.warn("Sauvegarde Cloud échouée, mode local:", fbErr);
+                    let tId = currentThreadId;
+                    let updatedThreads = [...threads];
+
+                    if (!tId) {
+                        tId = Date.now().toString();
+                        const newThread = {
+                            id: tId,
+                            title: (hasText || attachments[0]?.name || 'Nouvelle session').slice(0, 30),
+                            mode: modeToSend.id,
+                            messages: []
+                        };
+                        updatedThreads.unshift(newThread);
+                        setCurrentThreadId(tId);
+                    }
+
+                    const userMsg = { 
+                        id: Date.now().toString(), 
+                        role: 'user', 
+                        content: hasText, 
+                        attachments: attachments.map(a => ({name: a.name, type: a.type, preview: a.preview})) 
+                    };
+                    
+                    updatedThreads = updatedThreads.map(t => 
+                        t.id === tId ? { ...t, messages: [...t.messages, userMsg] } : t
+                    );
+                    setThreads(updatedThreads);
+
+                    // API Call
+                    const messagesForApi = [{ role: "system", content: modeToSend.prompt }];
+                    const userContent = [];
+                    if (hasText) userContent.push({ type: "text", text: hasText });
+                    attachments.forEach(att => {
+                        if (att.preview && att.type.startsWith('image/')) {
+                            userContent.push({ type: "image_url", image_url: { url: att.preview } });
+                        } else if (att.text) {
+                            userContent.push({ type: "text", text: `Fichier ${att.name}:\n${att.text}` });
                         }
-                    }
+                    });
+                    messagesForApi.push({ role: "user", content: userContent });
 
-                    if (!isFirebaseWorking) {
-                        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: text, attachments: attachSummary }]);
-                    }
+                    const hasImages = attachments.some(a => a.type.startsWith('image/'));
+                    const model = hasImages ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
 
-                    // ÉTAPE 2 : Appel Groq
-                    const userContent = buildUserContent(text, currentAttachments);
+                    const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                        body: JSON.stringify({ model, messages: messagesForApi, temperature: 0.7 })
+                    });
 
-                    // Select model: use vision model if images are attached
-                    const hasImages = currentAttachments.some(a => isImageFile(a.file));
-                    const model = hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile";
-
-                    let response;
-                    let lastErr;
-                    for (let i = 0; i < 3; i++) {
-                        try {
-                            response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
-                                method: 'POST',
-                                headers: { 
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${apiKey}`
-                                },
-                                body: JSON.stringify({
-                                    model,
-                                    messages: [
-                                        { role: "system", content: activeMode.prompt },
-                                        { role: "user", content: userContent }
-                                    ],
-                                    temperature: 0.7
-                                })
-                            });
-                            if (response.ok) break;
-                            const errData = await response.json();
-                            lastErr = errData.error?.message || response.statusText;
-                        } catch (e) {
-                            lastErr = e.message;
-                        }
-                        await new Promise(r => setTimeout(r, 1000 * (i + 1)));
-                    }
-
-                    if (!response || !response.ok) throw new Error(lastErr || "Échec de connexion au service Groq.");
+                    if (!response.ok) throw new Error("Erreur de connexion");
 
                     const data = await response.json();
                     let reply = data.choices?.[0]?.message?.content;
-                    if (!reply) throw new Error("Réponse vide générée par l'IA.");
 
-                    if (isImageMode) {
-                        const encodedPrompt = encodeURIComponent(reply);
-                        reply = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
+                    if (modeToSend.id === 'image') {
+                        reply = `https://image.pollinations.ai/prompt/${encodeURIComponent(reply)}?width=1024&height=1024&nologo=true`;
                     }
 
-                    // ÉTAPE 3 : Sauvegarde réponse IA
-                    if (isFirebaseWorking && user && db && tId) {
-                        try {
-                            await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('threads').doc(tId).collection('messages').add({
-                                role: 'assistant',
-                                content: reply,
-                                createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        } catch { isFirebaseWorking = false; }
-                    }
-
-                    if (!isFirebaseWorking) {
-                        setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: reply }]);
-                    }
+                    const botMsg = { id: (Date.now()+1).toString(), role: 'assistant', content: reply };
+                    setThreads(prev => prev.map(t => 
+                        t.id === tId ? { ...t, messages: [...t.messages, botMsg] } : t
+                    ));
 
                 } catch (err) {
-                    setLastError(`Système : ${err.message}`);
+                    setLastError(err.message);
                 } finally {
                     setIsSending(false);
                 }
             };
 
-            // ---- Message rendering ----
-            const renderMessage = (m) => {
-                const isUser = m.role === 'user';
-                const atts = m.attachments || [];
-                return (
-                    <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-in`}>
-                        <div className={`flex items-start gap-3 max-w-[92%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${isUser ? 'bg-indigo-600' : 'bg-slate-800 border border-slate-700'}`}>
-                                <Icon name={isUser ? 'user' : 'bot'} size={16} className={isUser ? "text-white" : "text-indigo-400"} />
-                            </div>
-                            <div className={`p-4 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap ${isUser ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800 text-slate-200 border border-slate-700/50'}`}>
-                                {/* Render attachments */}
-                                {atts.map((a, i) => (
-                                    <div key={i} style={{marginBottom: '6px'}}>
-                                        {a.preview
-                                            ? <img src={a.preview} alt={a.name} className="msg-image" style={{maxWidth:'300px'}} />
-                                            : <div className="attach-badge">
-                                                <Icon name={a.type === 'application/pdf' ? 'file-text' : 'file'} size={12} />
-                                                <span>{a.name}</span>
-                                              </div>
-                                        }
-                                    </div>
-                                ))}
-                                {/* Render content */}
-                                {m.content && (
-                                    m.content.startsWith('https://image.pollinations.ai')
-                                        ? <img src={m.content} alt="Génération IA" className="msg-image" />
-                                        : <span>{m.content}</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                );
+            const handleSuggestionClick = (s) => {
+                const targetMode = MODES.find(m => m.id === s.mode) || activeMode;
+                setActiveMode(targetMode);
+                handleSendMessage(s.text, targetMode);
             };
 
-            if (loading) return <div className="h-screen flex items-center justify-center bg-[#020617] text-indigo-500 font-bold animate-pulse uppercase tracking-widest text-xs">Chargement de l'environnement ShauneIA...</div>;
-
             return (
-                <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden font-sans">
+                <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden">
                     {/* Sidebar */}
-                    <aside className={`${isSidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-[#0b1120] border-r border-slate-800 flex flex-col z-20 overflow-hidden`}>
-                        <div className="p-6 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg">
-                                    <Icon name="infinity" size={24} className="text-white" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-xl italic text-white tracking-tight">ShauneIA</span>
-                                    <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Intelligence Private</span>
-                                </div>
-                            </div>
-                            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 hover:bg-slate-800 rounded-lg">
-                                <Icon name="x" size={20} className="text-slate-500" />
-                            </button>
+                    <aside className={`${isSidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 bg-[#0b1120] border-r border-slate-800 flex flex-col z-20 overflow-hidden`}>
+                        <div className="p-6 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white"><i className="bi bi-infinity text-xl"></i></div>
+                            <span className="font-bold text-lg tracking-tight">ShauneIA</span>
                         </div>
-
-                        <button onClick={() => {setCurrentThreadId(null); setMessages([]);}} className="mx-4 mb-4 p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition flex items-center justify-center gap-2 text-sm font-semibold border border-slate-700 shadow-inner">
-                            <Icon name="plus" size={18}/> Nouvelle session
+                        <button onClick={() => setCurrentThreadId(null)} className="mx-4 mb-4 p-2 rounded-lg bg-indigo-600/10 border border-indigo-600/20 text-indigo-400 text-xs font-bold hover:bg-indigo-600/20 transition-all flex items-center justify-center gap-2">
+                            <i className="bi bi-plus-lg"></i> NOUVELLE SESSION
                         </button>
-
-                        <div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
-                            <div className="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
-                                <span>Sessions récentes</span>
-                                <span className={`w-1.5 h-1.5 rounded-full ${dbStatus === 'online' ? 'bg-indigo-500' : 'bg-red-500'}`} title={dbStatus === 'online' ? 'Cloud Sync Actif' : 'Cloud Sync Inactif'}></span>
-                            </div>
-                            {threads.length === 0 && <div className="p-6 text-center text-xs text-slate-600 italic">Aucun historique</div>}
+                        <div className="flex-1 overflow-y-auto px-4 custom-scrollbar space-y-1">
                             {threads.map(t => (
-                                <div key={t.id} onClick={() => setCurrentThreadId(t.id)} className={`p-3 mb-1 rounded-xl cursor-pointer flex flex-col gap-1 transition-all ${currentThreadId === t.id ? 'bg-indigo-600/20 border border-indigo-500/50' : 'hover:bg-slate-800/40 border border-transparent'}`}>
-                                    <div className="flex items-center gap-2 overflow-hidden">
-                                        <Icon name="message-square" size={14} className={currentThreadId === t.id ? 'text-indigo-400' : 'text-slate-600'} />
-                                        <span className="truncate text-sm font-medium">{t.title || 'Conversation sans titre'}</span>
-                                    </div>
+                                <div key={t.id} onClick={() => setCurrentThreadId(t.id)} className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer text-xs truncate transition-all ${currentThreadId === t.id ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30' : 'hover:bg-slate-800/50 border border-transparent'}`}>
+                                    <span className="truncate flex items-center gap-2">
+                                        <i className={`bi ${MODES.find(m => m.id === t.mode)?.icon || 'bi-chat'}`}></i>
+                                        {t.title}
+                                    </span>
+                                    <button onClick={(e) => { e.stopPropagation(); setThreads(threads.filter(x => x.id !== t.id)); if(currentThreadId === t.id) setCurrentThreadId(null); }} className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"><i className="bi bi-trash3"></i></button>
                                 </div>
                             ))}
                         </div>
                     </aside>
 
-                    {/* Main Content */}
-                    <main className="flex-1 flex flex-col relative min-w-0">
-                        <header className="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-[#020617]/50 backdrop-blur-xl shrink-0">
-                            <div className="flex items-center gap-4">
-                                {!isSidebarOpen && (
-                                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 hover:bg-slate-800 rounded-lg">
-                                        <Icon name="menu" className="text-slate-400" size={20} />
+                    {/* Main */}
+                    <main className="flex-1 flex flex-col min-w-0">
+                        <header className="h-14 border-b border-slate-800 flex items-center justify-between px-4 shrink-0 bg-[#020617]/50 backdrop-blur-md">
+                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg transition"><i className="bi bi-list text-xl"></i></button>
+                            <div className="flex gap-1.5 p-1 bg-slate-900 rounded-full border border-slate-800">
+                                {MODES.map(m => (
+                                    <button key={m.id} onClick={() => setActiveMode(m)} className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all flex items-center gap-2 ${activeMode.id === m.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-slate-300'}`}>
+                                        <i className={`bi ${m.icon}`}></i> {m.label}
                                     </button>
-                                )}
-                                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                                    {MODES.map(m => (
-                                        <button key={m.id} onClick={() => setActiveMode(m)} className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-[11px] font-bold transition flex items-center gap-2 ${activeMode.id === m.id ? `bg-gradient-to-r ${m.color} text-white shadow-lg shadow-indigo-500/10` : 'bg-slate-800/50 text-slate-400 hover:text-slate-300'}`}>
-                                            <Icon name={m.icon} size={12} />
-                                            {m.label}
-                                        </button>
-                                    ))}
-                                </div>
+                                ))}
                             </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex flex-col items-end">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">GROQ STATUS</span>
-                                        <div className={`w-2 h-2 rounded-full ${apiKeyStatus === 'valid' ? 'bg-emerald-500' : apiKeyStatus === 'checking' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">CLOUD SYNC</span>
-                                        <div className={`w-2 h-2 rounded-full ${dbStatus === 'online' ? 'bg-emerald-500' : dbStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner"><i className="bi bi-person-fill text-slate-400"></i></div>
                         </header>
 
-                        {/* Error Banner */}
-                        {lastError && (
-                            <div className="mx-6 mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs flex items-center justify-between animate-in error-shake">
-                                <div className="flex items-center gap-2">
-                                    <Icon name="alert-circle" size={14} />
-                                    <span><strong>Anomalie :</strong> {lastError}</span>
-                                </div>
-                                <button onClick={() => setLastError(null)} className="p-1 hover:bg-red-500/20 rounded">
-                                    <Icon name="x" size={14} />
-                                </button>
-                            </div>
-                        )}
+                        {lastError && <div className="m-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs flex justify-between animate-in"><span>{lastError}</span><button onClick={() => setLastError(null)}><i className="bi bi-x-lg"></i></button></div>}
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-                            {messages.length === 0 ? (
-                                <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto animate-in">
-                                    <div className="w-16 h-16 bg-slate-800/50 rounded-2xl flex items-center justify-center border border-slate-700 mb-6 shadow-xl relative">
-                                        <Icon name="infinity" size={32} className="text-indigo-400" />
-                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full border-2 border-[#020617] flex items-center justify-center">
-                                            <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
-                                        </div>
+                        {/* Message Zone */}
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            {!currentThreadId ? (
+                                <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto space-y-12">
+                                    <div className="text-center animate-in">
+                                        <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-xl shadow-indigo-600/30"><i className="bi bi-infinity"></i></div>
+                                        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Comment puis-je vous aider aujourd'hui ?</h2>
                                     </div>
-                                    <h2 className="text-xl font-bold text-white mb-2 tracking-tight">ShauneIA Opérationnelle</h2>
-                                    <p className="text-slate-500 text-sm leading-relaxed mb-4">
-                                        Votre interface d'intelligence privée via Groq. Posez une question ou joignez un fichier pour commencer.
-                                    </p>
-                                    {/* Upload hint */}
-                                    <div className="flex items-center gap-2 text-[11px] text-slate-600 mb-6 bg-slate-900/40 border border-slate-800 rounded-xl px-4 py-2">
-                                        <Icon name="paperclip" size={12} className="text-indigo-500" />
-                                        <span>Images, PDF, TXT… glisser-déposer ou <button className="text-indigo-400 hover:underline" onClick={() => fileInputRef.current?.click()}>parcourir</button></span>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3 w-full">
-                                        {["Conseils stratégiques", "Analyse de données", "Générer une image", "Résolution technique"].map(prompt => (
-                                            <button key={prompt} onClick={() => setInputValue(prompt)} className="p-3 text-xs bg-slate-800/30 border border-slate-800 rounded-xl text-slate-400 hover:border-indigo-500/50 hover:text-indigo-400 transition-all text-left">
-                                                {prompt}
-                                            </button>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full animate-in" style={{animationDelay: '0.1s'}}>
+                                        {SUGGESTIONS.map((s, i) => (
+                                            <div key={i} onClick={() => handleSuggestionClick(s)} className="suggestion-card p-4 rounded-2xl flex flex-col gap-2">
+                                                <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-indigo-400"><i className={`bi ${s.icon}`}></i></div>
+                                                <h3 className="text-sm font-bold">{s.title}</h3>
+                                                <p className="text-xs text-slate-500 line-clamp-1">{s.text}</p>
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="max-w-3xl mx-auto space-y-6 pb-4">
-                                    {messages.map(renderMessage)}
-                                    {isSending && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700">
-                                                <Icon name="loader-2" size={16} className="text-indigo-500 animate-spin" />
+                                <div className="max-w-3xl mx-auto">
+                                    {messages.map((m) => {
+                                        const isUser = m.role === 'user';
+                                        return (
+                                            <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-in mb-8`}>
+                                                <div className={`flex items-start gap-4 max-w-[90%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${isUser ? 'bg-indigo-600 text-white' : 'bg-slate-800 border border-slate-700 text-indigo-400'}`}>
+                                                        <i className={`bi ${isUser ? 'bi-person-fill' : 'bi-robot'}`}></i>
+                                                    </div>
+                                                    <div className={`p-4 rounded-2xl text-[14px] leading-relaxed shadow-sm whitespace-pre-wrap ${isUser ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700/50'}`}>
+                                                        {(m.attachments || []).map((a, i) => (
+                                                            <div key={i} className="mb-3">
+                                                                {a.preview ? <img src={a.preview} className="msg-image" /> : <div className="attach-badge"><i className="bi bi-file-earmark-text mr-1"></i> {a.name}</div>}
+                                                            </div>
+                                                        ))}
+                                                        {m.content && (m.content.startsWith('https://') && m.content.includes('pollinations.ai') ? <img src={m.content} className="msg-image" /> : <span>{m.content}</span>)}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="p-4 rounded-2xl bg-slate-800 border border-slate-700/50 text-indigo-400 text-xs italic">
-                                                ShauneIA traite votre demande...
-                                            </div>
-                                        </div>
-                                    )}
+                                        );
+                                    })}
                                     <div ref={messagesEndRef} />
                                 </div>
                             )}
                         </div>
 
-                        {/* Input area */}
-                        <div className="p-4 md:p-6 bg-gradient-to-t from-[#020617] via-[#020617] to-transparent shrink-0">
-                            <div className={`max-w-3xl mx-auto relative bg-slate-900/80 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl transition-all ${isSending ? 'opacity-70 pointer-events-none' : 'focus-within:border-indigo-500/50'}`}>
-                                
-                                {/* Attached files preview strip */}
+                        {/* Input Area */}
+                        <div className="p-4 bg-gradient-to-t from-[#020617] via-[#020617] to-transparent shrink-0">
+                            <div className="max-w-3xl mx-auto bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                                 {attachedFiles.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 p-3 pb-0">
-                                        {attachedFiles.map((att, i) => (
-                                            <FilePill
-                                                key={i}
-                                                file={att.file}
-                                                preview={att.preview}
-                                                onRemove={() => removeAttachment(i)}
-                                            />
+                                    <div className="flex gap-2 p-3 flex-wrap border-b border-slate-800/50 bg-slate-900/30">
+                                        {attachedFiles.map((a, i) => (
+                                            <div key={i} className="file-pill animate-in">
+                                                {a.preview ? <img src={a.preview} /> : <div className="pill-icon"><i className="bi bi-file-earmark-code"></i></div>}
+                                                <span className="pill-name">{a.name}</span>
+                                                <button className="pill-remove" onClick={() => setAttachedFiles(f => f.filter((_, idx) => idx !== i))}><i className="bi bi-x-circle-fill"></i></button>
+                                            </div>
                                         ))}
                                     </div>
                                 )}
-
-                                <div className="flex items-end p-2">
-                                    {/* Upload button */}
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="upload-btn p-3 rounded-xl text-slate-500 flex-shrink-0"
-                                        title="Joindre un fichier (image, PDF, texte…)"
-                                    >
-                                        <Icon name="paperclip" size={18} />
-                                    </button>
-
-                                    {/* Hidden file input */}
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        multiple
-                                        accept={ACCEPTED_TYPES.join(',')}
-                                        style={{ display: 'none' }}
-                                        onChange={e => { handleFiles(Array.from(e.target.files)); e.target.value = ''; }}
-                                    />
-
+                                <div className="flex items-end p-3 gap-2">
+                                    <button onClick={() => fileInputRef.current.click()} className="mb-1 p-2.5 text-slate-500 hover:text-indigo-400 hover:bg-slate-800 rounded-xl transition-all"><i className="bi bi-paperclip text-xl"></i></button>
+                                    <input type="file" ref={fileInputRef} multiple style={{display:'none'}} onChange={e => handleFiles(Array.from(e.target.files))} />
                                     <textarea 
-                                        ref={textareaRef}
-                                        rows="1"
-                                        value={inputValue}
-                                        onChange={(e) => {
-                                            setInputValue(e.target.value);
-                                            e.target.style.height = 'auto';
-                                            e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-                                        }}
-                                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
-                                        placeholder={isSending ? "Traitement..." : attachedFiles.length ? "Décrivez ce que vous souhaitez faire avec ce fichier…" : "Posez votre question à ShauneIA…"}
-                                        className="flex-1 bg-transparent border-none focus:ring-0 text-white p-3 resize-none outline-none text-sm max-h-40 custom-scrollbar"
+                                        rows="1" 
+                                        value={inputValue} 
+                                        onChange={e => setInputValue(e.target.value)} 
+                                        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                                        placeholder="Décrivez votre besoin ou posez une question..." 
+                                        className="flex-1 bg-transparent border-none focus:ring-0 text-sm p-2.5 outline-none resize-none max-h-48 custom-scrollbar leading-relaxed"
+                                        style={{ height: 'auto' }}
+                                        onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                                     />
-                                    <button 
-                                        onClick={handleSendMessage}
-                                        disabled={(!inputValue.trim() && !attachedFiles.length) || isSending}
-                                        className={`p-3 rounded-xl transition-all flex-shrink-0 ${(inputValue.trim() || attachedFiles.length) && !isSending ? `bg-indigo-600 text-white hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20` : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
-                                    >
-                                        {isSending ? <Icon name="loader-2" size={18} className="animate-spin" /> : <Icon name="send" size={18} />}
+                                    <button onClick={() => handleSendMessage()} disabled={isSending} className="mb-1 w-10 h-10 bg-indigo-600 rounded-xl text-white disabled:opacity-50 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-lg shadow-indigo-600/20 shrink-0">
+                                        {isSending ? <i className="bi bi-arrow-repeat animate-spin text-xl"></i> : <i className="bi bi-arrow-up-short text-3xl"></i>}
                                     </button>
                                 </div>
                             </div>
-                            <div className="mt-2 text-center flex items-center justify-center gap-4 text-[9px] text-slate-600 font-medium">
-                                <span>ShauneIA V2 (Groq) - Système Privé</span>
-                                <span className="flex items-center gap-1 uppercase tracking-tighter opacity-50"><Icon name="shield-check" size={10}/> Connexion Sécurisée</span>
-                                <span className="flex items-center gap-1 uppercase tracking-tighter opacity-50"><Icon name="paperclip" size={10}/> Upload Fichiers Actif</span>
+                            <div className="mt-3 text-center flex items-center justify-center gap-4 text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em]">
+                                <span className="flex items-center gap-1.5"><i className="bi bi-shield-lock-fill text-indigo-900"></i> Local storage v2</span>
+                                <span className="opacity-30">|</span>
+                                <span className="flex items-center gap-1.5"><i className="bi bi-cpu-fill text-indigo-900"></i> Groq Llama 3.3</span>
                             </div>
                         </div>
                     </main>
                 </div>
             );
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
